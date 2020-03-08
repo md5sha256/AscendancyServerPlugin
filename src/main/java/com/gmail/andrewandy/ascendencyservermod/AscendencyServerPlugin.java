@@ -11,20 +11,20 @@ import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
 @Plugin(
-        id = "ascendencyservermod",
-        name = "AscendencyServerMod",
-        version = "1.0-SNAPSHOT",
-        description = "Ascendency Server Mod",
+        id = "ascendencyserverplugin",
+        name = "AscendencyServerPlugin",
+        version = "${project.version}",
+        description = "Ascendency Server Plugin",
         authors = {
                 "andrewandy"
         }
 )
-public class AscendencyServerMod {
+public class AscendencyServerPlugin {
 
-    private static AscendencyServerMod instance;
+    private static AscendencyServerPlugin instance;
     private MessageBroker messageBroker;
 
-    public static AscendencyServerMod getInstance() {
+    public static AscendencyServerPlugin getInstance() {
         return instance;
     }
 

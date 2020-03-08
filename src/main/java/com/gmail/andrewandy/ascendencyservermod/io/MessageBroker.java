@@ -1,6 +1,6 @@
 package com.gmail.andrewandy.ascendencyservermod.io;
 
-import com.gmail.andrewandy.ascendencyservermod.AscendencyServerMod;
+import com.gmail.andrewandy.ascendencyservermod.AscendencyServerPlugin;
 import com.gmail.andrewandy.ascendencyservermod.util.Common;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
@@ -53,7 +53,7 @@ public class MessageBroker {
             try {
                 socket.close();
             } catch (IOException ex) {
-                AscendencyServerMod.getInstance().getLogger().error("Error occurred when trying to stop the message broker!");
+                AscendencyServerPlugin.getInstance().getLogger().error("Error occurred when trying to stop the message broker!");
                 ex.printStackTrace();
             }
         }
@@ -165,7 +165,7 @@ public class MessageBroker {
                         entry.getValue().close();
                     } catch (IOException ex) {
                         //Print error if any socket error occurs.
-                        AscendencyServerMod.getInstance().getLogger().error("Socket error occurred!");
+                        AscendencyServerPlugin.getInstance().getLogger().error("Socket error occurred!");
                         ex.printStackTrace();
                     }
                 }
@@ -174,7 +174,7 @@ public class MessageBroker {
             socketMap.keySet().retainAll(onlinePlayers);
             portMap.keySet().retainAll(onlinePlayers);
         } catch (Exception ex) {
-            AscendencyServerMod.getInstance().getLogger().error("&c[ERROR] Execution Error Occurred!");
+            AscendencyServerPlugin.getInstance().getLogger().error("&c[ERROR] Execution Error Occurred!");
             ex.printStackTrace();
         }
         //Update and try reopening closed sockets for each player.
@@ -190,7 +190,7 @@ public class MessageBroker {
                         if (ex instanceof SocketTimeoutException) {
                             return; //Ignore if its because of a timeout.
                         }
-                        AscendencyServerMod.getInstance().getLogger().error("Socket error occurred!");
+                        AscendencyServerPlugin.getInstance().getLogger().error("Socket error occurred!");
                         ex.printStackTrace();
                     }
                 }

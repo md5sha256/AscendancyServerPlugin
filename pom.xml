@@ -70,6 +70,13 @@
                         <directory>src/main/resources</directory>
                         <filtering>true</filtering>
                     </resource>
+                    <resource>
+                        <directory>src/main/java/com/gmail/andrewandy/ascendencyservermod</directory>
+                        <includes>
+                            <include>AscendencyServerMod.java</include>
+                        </includes>
+                        <filtering>true</filtering>
+                    </resource>
                 </resources>
             </build>
         </profile>
