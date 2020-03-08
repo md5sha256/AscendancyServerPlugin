@@ -10,6 +10,8 @@ import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.plugin.Plugin;
 
+import java.util.logging.Level;
+
 @Plugin(
         id = "ascendencyserverplugin",
         name = "AscendencyServerPlugin",
@@ -23,13 +25,12 @@ public class AscendencyServerPlugin {
 
     private static AscendencyServerPlugin instance;
     private MessageBroker messageBroker;
+    @Inject
+    private Logger logger;
 
     public static AscendencyServerPlugin getInstance() {
         return instance;
     }
-
-    @Inject
-    private Logger logger;
 
     public Logger getLogger() {
         return logger;
@@ -39,16 +40,20 @@ public class AscendencyServerPlugin {
     public void onServerStart(GameStartedServerEvent event) {
         instance = this;
         Common.setup();
-        Common.setPrefix("[CustomServerMod] ");
+        Common.setPrefix("[CustomServerMod]");
+        Common.log(Level.INFO, "Loading message broker...");
+        long millis = System.currentTimeMillis();
         loadMessageBroker();
+        Common.log(Level.INFO, "Finished loading broker, took " + (System.currentTimeMillis() - millis) + "ms.");
+        Common.log(Level.INFO, "Plugin enabled!");
     }
 
     @Listener(order = Order.DEFAULT)
     public void onServerStop(GameStoppedServerEvent event) {
         instance = null;
-        logger.info("[Custom Server Mod] Disabling message broker & terminating connections.");
+        Common.log(Level.INFO, "[Custom Server Mod] Disabling message broker & terminating connections.");
         messageBroker.stop();
-        logger.info("[Custom Server Mod] Goodbye! Plugin has been disabled.");
+        Common.log(Level.INFO, "[Custom Server Mod] Goodbye! Plugin has been disabled.");
     }
 
     public void loadMessageBroker() {
