@@ -4,13 +4,11 @@ import com.gmail.andrewandy.ascendencyservermod.io.MessageBroker;
 import com.gmail.andrewandy.ascendencyservermod.util.Common;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
+import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
-import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.plugin.Plugin;
-
-import java.io.IOException;
 
 @Plugin(
         id = "ascendencyservermod",
@@ -53,7 +51,7 @@ public class AscendencyServerMod {
         logger.info("[Custom Server Mod] Goodbye! Plugin has been disabled.");
     }
 
-    public void loadMessageBroker()  {
+    public void loadMessageBroker() {
         messageBroker = new MessageBroker();
     }
 
