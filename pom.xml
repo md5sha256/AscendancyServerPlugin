@@ -32,7 +32,7 @@
                             <execution>
                                 <id>attach-sources</id>
                                 <goals>
-                                    <goal>jar-no-fork</goal>
+                                    <goal>jar</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -71,9 +71,9 @@
                         <filtering>true</filtering>
                     </resource>
                     <resource>
-                        <directory>src/main/java/com/gmail/andrewandy/ascendencyservermod</directory>
+                        <directory>src/main/java/com/gmail/andrewandy/ascendencyserverplugin</directory>
                         <includes>
-                            <include>AscendencyServerMod.java</include>
+                            <include>AscendencyServerPlugin.java</include>
                         </includes>
                         <filtering>true</filtering>
                     </resource>
@@ -86,7 +86,7 @@
         <defaultGoal>clean install</defaultGoal>
         <resources>
             <resource>
-                <directory>\${project.basedir}/src/main/resources</directory>
+                <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>
@@ -172,6 +172,16 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.30</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-buffer</artifactId>
+            <version>4.0.23.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>net.minecraftforge.forge</groupId>
+            <artifactId>MinecraftForge</artifactId>
+            <version>12.8.3.2511</version>
         </dependency>
     </dependencies>
 </project>

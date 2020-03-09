@@ -1,11 +1,13 @@
-package com.gmail.andrewandy.ascendencyservermod.util;
+package com.gmail.andrewandy.ascendencyserverplugin.util;
 
-import com.gmail.andrewandy.ascendencyservermod.AscendencyServerPlugin;
+import com.gmail.andrewandy.ascendencyserverplugin.AscendencyServerPlugin;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
@@ -45,6 +47,16 @@ public class Common {
                 logger.debug(message);
             }
         }
+    }
+
+    public static byte[] readFromStream(InputStream src) throws IOException {
+        Objects.requireNonNull(src);
+        byte[] data = new byte[src.available()];
+        int index = 0;
+        while (src.available() > 0) {
+            data[index++] = (byte) src.read();
+        }
+        return data;
     }
 
 }

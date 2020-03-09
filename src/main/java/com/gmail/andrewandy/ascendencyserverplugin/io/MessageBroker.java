@@ -1,6 +1,6 @@
-package com.gmail.andrewandy.ascendencyservermod.io;
+package com.gmail.andrewandy.ascendencyserverplugin.io;
 
-import com.gmail.andrewandy.ascendencyservermod.util.Common;
+import com.gmail.andrewandy.ascendencyserverplugin.util.Common;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 
