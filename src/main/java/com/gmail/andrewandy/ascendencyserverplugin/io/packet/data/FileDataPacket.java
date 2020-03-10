@@ -24,6 +24,7 @@ public class FileDataPacket extends DataPacket {
 
     public FileDataPacket() {
     }
+
     public FileDataPacket(File file) throws IOException {
         this(new FileInputStream(file), file.getName(), file.length());
     }
@@ -64,7 +65,6 @@ public class FileDataPacket extends DataPacket {
     public int fromBytes(byte[] bytes) {
         ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(bytes.length);
         buf.writeBytes(bytes);
-
         int idLength = Objects.requireNonNull(buf).readInt();
         String identifier = new String(buf.readSlice(idLength).array());
         String[] arr = identifier.split(SPLITTER);

@@ -59,4 +59,14 @@ public class Common {
         return data;
     }
 
+    public static void reverseArray(byte[] array) {
+        int remain = array.length % 2;
+        int len =  array.length / 2 + remain;
+        for (int index = 0; index < len; index++) {
+            byte first = array[index++];
+            byte back = array[array.length - index];
+            array[index] = back;
+            array[array.length - index] = first;
+        }
+    }
 }
