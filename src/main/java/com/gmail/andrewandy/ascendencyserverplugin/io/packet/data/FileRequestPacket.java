@@ -1,6 +1,7 @@
-package com.gmail.andrewandy.ascendencyserverplugin.io.packet;
+package com.gmail.andrewandy.ascendencyserverplugin.io.packet.data;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,7 +10,7 @@ import java.util.Objects;
 /**
  * Represents a packet to request for a file.
  */
-public class FileRequestPacket extends AscendencyPacket {
+public class FileRequestPacket extends DataRequestPacket {
 
     public static final String PROTOCOL_VERSION = "1";
     private static final String SPLITTER = "::";
@@ -41,8 +42,10 @@ public class FileRequestPacket extends AscendencyPacket {
     }
 
     @Override
-    public void fromBytes(ByteBuf buf) {
-        byte[] rawString = Objects.requireNonNull(buf).array();
+    public int fromBytes(byte[] bytes) {
+        ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(bytes.length);
+        buf.writeBytes(bytes);
+        byte[] rawString = buf.array();
         String str = new String(rawString);
         String[] split = str.split(SPLITTER);
         if (split.length < 3) {
@@ -64,12 +67,17 @@ public class FileRequestPacket extends AscendencyPacket {
         } catch (ClassNotFoundException ex) {
             throw new IllegalArgumentException("Invalid packet, not type of FileRequestPacket!", ex);
         }
-
+        return buf.readerIndex();
     }
 
     @Override
-    public void toBytes(ByteBuf buf) {
+    public byte[] getFormattedData() {
         String str = getClass().getCanonicalName() + SPLITTER + PROTOCOL_VERSION + SPLITTER + filePath.toString();
-        Objects.requireNonNull(buf).writeBytes(str.getBytes());
+        return str.getBytes();
+    }
+
+    @Override
+    public String getIdentifier() {
+        return FileRequestPacket.class.getCanonicalName() + SPLITTER + PROTOCOL_VERSION;
     }
 }

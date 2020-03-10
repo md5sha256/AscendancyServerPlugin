@@ -90,7 +90,7 @@ public class MessageBroker {
     private Socket openSocket(UUID player) throws IOException, IllegalStateException {
         int port = assignPortFor(player);
         InetAddress address;
-        Future<InetAddress> future = Common.getExecutorService().submit(() -> {
+        Future<InetAddress> future = Common.getSyncExecutor().submit(() -> {
             Optional<Player> optionalPlayer = Sponge.getServer().getPlayer(player);
             return optionalPlayer.map(value -> value.getConnection().getAddress().getAddress()).orElse(null);
         });
@@ -155,7 +155,7 @@ public class MessageBroker {
         Collection<UUID> onlinePlayers;
         try {
             //Get online players from main thread
-            Future<Collection<Player>> futurePlayers = Common.getExecutorService().submit(() -> Sponge.getServer().getOnlinePlayers());
+            Future<Collection<Player>> futurePlayers = Common.getSyncExecutor().submit(() -> Sponge.getServer().getOnlinePlayers());
             while (!futurePlayers.isDone()) ;
             onlinePlayers = futurePlayers.get().stream().map(Player::getUniqueId).collect(Collectors.toSet());
             //Close all inactive sockets.

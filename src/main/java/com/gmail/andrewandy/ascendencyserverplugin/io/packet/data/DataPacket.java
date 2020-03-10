@@ -1,5 +1,6 @@
-package com.gmail.andrewandy.ascendencyserverplugin.io.packet;
+package com.gmail.andrewandy.ascendencyserverplugin.io.packet.data;
 
+import com.gmail.andrewandy.ascendencyserverplugin.io.packet.AscendencyPacket;
 import com.gmail.andrewandy.ascendencyserverplugin.util.Common;
 import io.netty.buffer.ByteBuf;
 
@@ -50,12 +51,11 @@ public abstract class DataPacket extends AscendencyPacket {
 
     public void writeToStream(OutputStream outputStream, boolean closeAfter) throws IOException {
         try {
-            Objects.requireNonNull(outputStream).write(data);
+            Objects.requireNonNull(outputStream).write(getFormattedData());
         } finally {
             if (closeAfter && outputStream != null) {
                 outputStream.close();
             }
         }
     }
-
 }

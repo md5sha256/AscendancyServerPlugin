@@ -25,7 +25,7 @@ public class Common {
         Common.prefix = prefix;
     }
 
-    public static ExecutorService getExecutorService() {
+    public static ExecutorService getSyncExecutor() {
         return executorService;
     }
 
