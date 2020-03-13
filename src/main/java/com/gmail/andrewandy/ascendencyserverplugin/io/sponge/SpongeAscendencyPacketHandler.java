@@ -1,4 +1,4 @@
-package com.gmail.andrewandy.ascendencyserverplugin.io.packet.sponge;
+package com.gmail.andrewandy.ascendencyserverplugin.io.sponge;
 
 import com.gmail.andrewandy.ascendencyserverplugin.io.packet.AscendencyPacket;
 import com.gmail.andrewandy.ascendencyserverplugin.io.packet.AscendencyPacketHandler;

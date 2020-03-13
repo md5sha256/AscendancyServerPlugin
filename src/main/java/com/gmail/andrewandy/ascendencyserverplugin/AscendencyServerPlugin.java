@@ -1,6 +1,6 @@
 package com.gmail.andrewandy.ascendencyserverplugin;
 
-import com.gmail.andrewandy.ascendencyserverplugin.io.packet.sponge.SpongeAscendencyPacketHandler;
+import com.gmail.andrewandy.ascendencyserverplugin.io.sponge.SpongeAscendencyPacketHandler;
 import com.gmail.andrewandy.ascendencyserverplugin.util.Common;
 import com.google.inject.Inject;
 import org.slf4j.Logger;

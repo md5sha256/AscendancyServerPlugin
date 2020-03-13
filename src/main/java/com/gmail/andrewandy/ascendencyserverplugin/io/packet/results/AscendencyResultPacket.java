@@ -54,4 +54,9 @@ public class AscendencyResultPacket extends AscendencyPacket implements ResultPa
     public Result getResult() {
         return result;
     }
+
+    @Override
+    public String getIdentifier() {
+        return AscendencyResultPacket.class.getCanonicalName();
+    }
 }

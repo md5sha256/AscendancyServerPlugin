@@ -2,7 +2,6 @@ package com.gmail.andrewandy.ascendencyserverplugin.io.packet;
 
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import org.spongepowered.api.network.ChannelBinding;
 
 import java.util.Map;
 import java.util.Objects;
@@ -18,8 +17,8 @@ public class AscendencyPacketHandler implements IMessageHandler<AscendencyPacket
 
     private static final AscendencyPacketHandler instance = new AscendencyPacketHandler();
     private static final String CHANNEL_NAME = "Ascendency_Data_Channel";
-    private ChannelBinding.IndexedMessageChannel channel;
     private Map<Class<?>, Function<? extends AscendencyPacket, ? extends AscendencyPacket>> handlerMap = new ConcurrentHashMap<>();
+
     private AscendencyPacketHandler() {
     }
 
