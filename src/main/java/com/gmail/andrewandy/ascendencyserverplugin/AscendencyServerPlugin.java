@@ -1,6 +1,7 @@
 package com.gmail.andrewandy.ascendencyserverplugin;
 
 import com.gmail.andrewandy.ascendencyserverplugin.io.sponge.SpongeAscendencyPacketHandler;
+import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.match.SimplePlayerMatchManager;
 import com.gmail.andrewandy.ascendencyserverplugin.util.Common;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
@@ -53,11 +54,13 @@ public class AscendencyServerPlugin {
         Common.setup();
         Common.setPrefix("[CustomServerMod]");
         setupIO();
+        SimplePlayerMatchManager.enableManager();
         Common.log(Level.INFO, "Plugin enabled!");
     }
 
     @Listener(order = Order.DEFAULT)
     public void onServerStop(GameStoppedServerEvent event) {
+        SimplePlayerMatchManager.disableManager();
         unregisterIO();
         Common.log(Level.INFO, "Goodbye! Plugin has been disabled.");
         instance = null;
