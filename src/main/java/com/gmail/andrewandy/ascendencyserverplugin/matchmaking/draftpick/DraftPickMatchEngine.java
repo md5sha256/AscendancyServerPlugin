@@ -2,6 +2,8 @@ package com.gmail.andrewandy.ascendencyserverplugin.matchmaking.draftpick;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -16,6 +18,19 @@ public class DraftPickMatchEngine {
 
     DraftPickMatchEngine(DraftPickMatch match) {
         this.ascendencyPlayers = match.getPlayers().stream().map(AscendencyPlayer::new).collect(Collectors.toCollection(HashSet::new));
+    }
+
+    Collection<AscendencyPlayer> getAscendencyPlayers() {
+        return ascendencyPlayers;
+    }
+
+    Optional<AscendencyPlayer> wrapPlayer(UUID player) {
+        for (AscendencyPlayer ap : ascendencyPlayers) {
+            if (ap.uuidMatches(player)) {
+                return Optional.of(ap);
+            }
+        }
+        return Optional.empty();
     }
 
     public void tick() {

@@ -4,10 +4,7 @@ import com.gmail.andrewandy.ascendencyserverplugin.game.Champion;
 import com.gmail.andrewandy.ascendencyserverplugin.game.gameclass.GameClass;
 import com.gmail.andrewandy.ascendencyserverplugin.game.rune.Rune;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Represents a player in an {@link DraftPickMatch}
@@ -17,7 +14,7 @@ import java.util.UUID;
  */
 public class AscendencyPlayer {
 
-    Collection<Rune> appliedRunes = new HashSet<>();
+    Collection<Rune> appliedRunes = new ArrayList<>(); //Allow duplicate runes?
     Champion champion;
     GameClass gameClass;
     private UUID player;
@@ -26,10 +23,19 @@ public class AscendencyPlayer {
         this.player = player;
     }
 
+    /**
+     * Get all runes which are currently applied to the player.
+     * @return Returns a cloned collection of runes which are
+     * currently active on the player.
+     */
     public Collection<Rune> getAppliedRunes() {
         return new HashSet<>(appliedRunes);
     }
 
+    /**
+     * Get the champion the player has selected.
+     * @return Returns the Champion object which the player has selected.
+     */
     public Champion getChampion() {
         return champion;
     }
@@ -42,6 +48,10 @@ public class AscendencyPlayer {
         return other.equals(player);
     }
 
+    /**
+     * Get the GameClass which the player selected.
+     * @return Returns the GameClass object which the player has selected.
+     */
     public GameClass getGameClass() {
         return gameClass;
     }

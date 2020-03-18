@@ -1,5 +1,7 @@
 package com.gmail.andrewandy.ascendencyserverplugin.matchmaking.draftpick;
 
+import com.gmail.andrewandy.ascendencyserverplugin.game.rune.PlayerSpecificRune;
+import com.gmail.andrewandy.ascendencyserverplugin.game.rune.Rune;
 import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.Team;
 import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.match.ManagedMatch;
 import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.match.PlayerMatchManager;
@@ -13,7 +15,9 @@ public class DraftPickMatch implements ManagedMatch {
 
     private final UUID matchID;
     private Collection<Team> teams = new HashSet<>();
+    private RuneManager runeManager = new RuneManager();
     private MatchState matchState = MatchState.LOBBY;
+    private DraftPickMatchEngine engine = new DraftPickMatchEngine(this);
     private int maxPlayersPerTeam;
     private int minPlayersPerTeam = 1;
 
@@ -59,6 +63,18 @@ public class DraftPickMatch implements ManagedMatch {
     @Override
     public Optional<Team> getTeamByName(String name) {
         return teams.stream().filter((Team team) -> team.getName().equalsIgnoreCase(name)).findAny();
+    }
+
+    public RuneManager getRuneManager() {
+        return runeManager;
+    }
+
+    public boolean applyRuneTo(PlayerSpecificRune rune, UUID player) {
+        return runeManager.applyRuneTo(rune, player);
+    }
+
+    public boolean removeRuneFrom(PlayerSpecificRune rune, UUID player) {
+        return runeManager.removeRuneFrom(rune, player);
     }
 
     @Override
@@ -212,6 +228,77 @@ public class DraftPickMatch implements ManagedMatch {
     @Override
     public UUID getMatchID() {
         return matchID;
+    }
+
+
+    /**
+     * Represents a manager which will update the {@link AscendencyPlayer} data
+     * object with regards to runes.
+     */
+    public class RuneManager {
+        public boolean applyRuneTo(PlayerSpecificRune rune, UUID player) {
+            if (!getPlayers().contains(player)) {
+                throw new IllegalArgumentException("Player is not in this match!");
+            }
+            if (!rune.canApplyTo(player)) {
+                return false;
+            }
+            Optional<Player> playerObj = Sponge.getServer().getPlayer(player);
+            if (!playerObj.isPresent()) {
+                return false;
+            }
+            rune.applyTo(playerObj.get());
+            Optional<AscendencyPlayer> ascendencyPlayer = engine.wrapPlayer(player);
+            assert ascendencyPlayer.isPresent();
+            return ascendencyPlayer.get().appliedRunes.add(rune);
+        }
+
+        public boolean removeRuneFrom(PlayerSpecificRune rune, UUID player) {
+            if (!getPlayers().contains(player)) {
+                throw new IllegalArgumentException("Player is not in this match!");
+            }
+            Optional<Player> playerObj = Sponge.getServer().getPlayer(player);
+            if (!playerObj.isPresent()) {
+                return false;
+            }
+            rune.clearFrom(playerObj.get());
+            Optional<AscendencyPlayer> ascendencyPlayer = engine.wrapPlayer(player);
+            assert ascendencyPlayer.isPresent();
+            return ascendencyPlayer.get().appliedRunes.remove(rune);
+        }
+
+        public void applyRuneToAll(PlayerSpecificRune rune) {
+            for (UUID uuid : getPlayers()) {
+                applyRuneTo(rune, uuid);
+            }
+        }
+
+        public void removeRuneFromAll(PlayerSpecificRune rune) {
+            for (UUID uuid : getPlayers()) {
+                removeRuneFrom(rune, uuid);
+            }
+        }
+
+        public void clearRunes(UUID player) {
+            Optional<AscendencyPlayer> ascendencyPlayer = engine.wrapPlayer(player);
+            assert ascendencyPlayer.isPresent();
+            AscendencyPlayer actual = ascendencyPlayer.get();
+            Optional<Player> optionalPlayer = Sponge.getServer().getPlayer(player);
+            optionalPlayer.ifPresent(
+                    (playerObj) -> {
+                        for (Rune rune : actual.appliedRunes) {
+                            rune.clearFrom(playerObj);
+                        }
+                    }
+            );
+            actual.appliedRunes.clear();
+        }
+
+        public void clearRunesFromAll() {
+            for (UUID uuid : getPlayers()) {
+                clearRunes(uuid);
+            }
+        }
     }
 
     @Override
