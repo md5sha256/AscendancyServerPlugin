@@ -1,0 +1,4 @@
+MatchMaking:
+  Mode: BALANCED
+  Max-Players: 10
+  Min-Players: 6

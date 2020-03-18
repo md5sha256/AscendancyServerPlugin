@@ -1,20 +1,28 @@
 package com.gmail.andrewandy.ascendencyserverplugin;
 
 import com.gmail.andrewandy.ascendencyserverplugin.io.sponge.SpongeAscendencyPacketHandler;
+import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.MatchMakingService;
+import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.draftpick.DraftPickMatch;
 import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.match.SimplePlayerMatchManager;
 import com.gmail.andrewandy.ascendencyserverplugin.util.Common;
+import com.gmail.andrewandy.ascendencyserverplugin.util.YamlLoader;
 import com.google.inject.Inject;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppedServerEvent;
 import org.spongepowered.api.network.ChannelBinding;
 import org.spongepowered.api.plugin.Plugin;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 
 @Plugin(
@@ -31,9 +39,13 @@ public class AscendencyServerPlugin {
     private static final String DEFAULT_NETWORK_CHANNEL_NAME = "ASCENDENCY_DEFAULT_CHANNEL";
     private static AscendencyServerPlugin instance;
     private final SpongeAscendencyPacketHandler DEFAULT_HANDLER = new SpongeAscendencyPacketHandler();
+    private MatchMakingService<DraftPickMatch> matchMatchMakingService;
+
+
     @Inject
     @ConfigDir(sharedRoot = true)
     private File dataFolder;
+    private YAMLConfigurationLoader configurationLoader;
 
     private ChannelBinding.RawDataChannel DEFAULT_NETWORK_CHANNEL;
 
@@ -42,6 +54,18 @@ public class AscendencyServerPlugin {
 
     public static AscendencyServerPlugin getInstance() {
         return instance;
+    }
+
+    public File getDataFolder() {
+        return dataFolder;
+    }
+
+    public ConfigurationNode getSettings() {
+        try {
+            return configurationLoader.load();
+        } catch (IOException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     public Logger getLogger() {
@@ -54,7 +78,9 @@ public class AscendencyServerPlugin {
         Common.setup();
         Common.setPrefix("[CustomServerMod]");
         setupIO();
+        loadSettings();
         SimplePlayerMatchManager.enableManager();
+        loadMatchMaking(); //Load after the player match manager.
         Common.log(Level.INFO, "Plugin enabled!");
     }
 
@@ -63,7 +89,15 @@ public class AscendencyServerPlugin {
         SimplePlayerMatchManager.disableManager();
         unregisterIO();
         Common.log(Level.INFO, "Goodbye! Plugin has been disabled.");
+        if (matchMatchMakingService != null) {
+            matchMatchMakingService.clearQueue();
+        }
         instance = null;
+    }
+
+    @Listener(order = Order.DEFAULT)
+    public void onServerReload(GameReloadEvent event) {
+        loadSettings();
     }
 
     private void setupIO() {
@@ -86,6 +120,13 @@ public class AscendencyServerPlugin {
         Common.log(Level.INFO, "Loading complete.");
     }
 
+    public void loadSettings() {
+        Common.log(Level.INFO, "&bLoading settings from disk...");
+        long time = System.currentTimeMillis();
+        configurationLoader = new YamlLoader("settings.yml").getLoader();
+        Common.log(Level.INFO, "&aLoad complete! Took " + (System.currentTimeMillis() - time) + "ms.");
+    }
+
     private void unregisterIO() {
         Common.log(Level.INFO, "Disabling Network Channel...");
         if (DEFAULT_NETWORK_CHANNEL != null) {
@@ -93,5 +134,25 @@ public class AscendencyServerPlugin {
             Sponge.getChannelRegistrar().unbindChannel(DEFAULT_NETWORK_CHANNEL);
         }
         DEFAULT_NETWORK_CHANNEL = null;
+    }
+
+    private void loadMatchMaking() throws IllegalArgumentException {
+        ConfigurationNode node = getSettings();
+        node = node.getNode("MatchMaking");
+        if (node == null) {
+            throw new IllegalArgumentException("Invalid settings detected! Missing MatchMaking section!");
+        }
+        int min = node.getNode("Min-Players").getInt();
+        int max = node.getNode("Max-Players").getInt();
+        String modeEnumName = node.getNode("Mode").getString().toUpperCase();
+        MatchMakingService.MatchMakingMode mode = MatchMakingService.MatchMakingMode.valueOf(modeEnumName);
+        MatchMakingService<DraftPickMatch> service = new MatchMakingService<>(min, max, () -> new DraftPickMatch(Math.round(max / 2f))).setMatchMakingMode(mode);
+        if (matchMatchMakingService != null) {
+            for (Player player : matchMatchMakingService.clearQueue()) {
+                service.addToQueue(player);
+            }
+        }
+        Common.log(Level.INFO, "7a[Matchmaking] Loaded: Max-Players = " + max + ", Min-Players = " + min + ", Mode = " + Common.capitalise(mode.name().toLowerCase()));
+        matchMatchMakingService = service;
     }
 }

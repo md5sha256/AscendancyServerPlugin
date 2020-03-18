@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +37,7 @@ public class Common {
     public static void log(Level level, String... messages) {
         Logger logger = AscendencyServerPlugin.getInstance().getLogger();
         for (String message : messages) {
-            message = message.concat(prefix + " " + message);
+            message = colorise(message.concat(prefix + " " + message));
             if (level == Level.INFO) {
                 logger.info(message);
             } else if (level == Level.WARNING) {
@@ -47,6 +48,22 @@ public class Common {
                 logger.debug(message);
             }
         }
+    }
+
+    public static String colorise(String string) {
+        return colorise(Text.of(string));
+    }
+
+    public static String colorise(Text text) {
+        return TextSerializers.formattingCode('&').serialize(text);
+    }
+
+    public static String stripColor(String str) {
+        return TextSerializers.formattingCode('&').stripCodes(str);
+    }
+
+    public static String stripColor(Text text) {
+        return stripColor(Objects.requireNonNull(text).toString());
     }
 
     public static String capitalise(String string) {
