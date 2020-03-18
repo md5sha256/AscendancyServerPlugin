@@ -153,8 +153,8 @@ public class DraftPickMatch implements ManagedMatch {
         if (!manager.verifyMatch(this)) {
             return false;
         }
-        //TODO Implement start code here.
-        throw new UnsupportedOperationException();
+        engine.start();
+        return true;
     }
 
     @Override
@@ -176,7 +176,7 @@ public class DraftPickMatch implements ManagedMatch {
     }
 
     private void onEnd() {
-        //TODO add a stats message etc.
+        engine.end();
     }
 
     @Override

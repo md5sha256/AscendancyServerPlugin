@@ -21,7 +21,7 @@ public class DraftPickMatchEngine {
     }
 
     Collection<AscendencyPlayer> getAscendencyPlayers() {
-        return ascendencyPlayers;
+        return new HashSet<>(ascendencyPlayers);
     }
 
     Optional<AscendencyPlayer> wrapPlayer(UUID player) {
@@ -35,6 +35,22 @@ public class DraftPickMatchEngine {
 
     public void tick() {
         //TODO Update the runes, etc
+    }
+
+    public void start() {
+
+    }
+
+    public void pause() {
+
+    }
+
+    public void resume() {
+
+    }
+
+    public void end() {
+
     }
 
     //Register listeners for game logic.
