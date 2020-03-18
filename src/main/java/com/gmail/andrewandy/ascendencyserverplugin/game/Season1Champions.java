@@ -15,7 +15,7 @@ public enum Season1Champions implements Champion, DataSerializable {
     private final int version = 0;
     private final DataContainer dataContainer = new MemoryDataContainer().set(DataQuery.of("ordinal"), ordinal());
     private final GameClass gameClass;
-    private PlayerSpecificRune[] runes = new PlayerSpecificRune[0];
+    private PlayerSpecificRune[] runes;
 
     Season1Champions(GameClass gameClass, PlayerSpecificRune... runes) {
         this.gameClass = gameClass;

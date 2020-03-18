@@ -1,6 +1,8 @@
 package com.gmail.andrewandy.ascendencyserverplugin.matchmaking;
 
+import com.gmail.andrewandy.ascendencyserverplugin.AscendencyServerPlugin;
 import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.match.ManagedMatch;
+import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.match.PlayerMatchManager;
 import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.match.SimplePlayerMatchManager;
 import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.match.event.MatchStartEvent;
 import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.match.event.PlayerJoinMatchEvent;
@@ -13,6 +15,7 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -26,8 +29,10 @@ public class MatchMakingService<M extends ManagedMatch> {
 
     private int minPlayersPerGame;
     private int maxPlayersPerGame;
+    private MatchMakingMode mode = MatchMakingMode.BALANCED; //The way server matches players.
 
     private Supplier<M> matchMakingFactory;
+    private Consumer<ManagedMatch> onMatchStart; //TODO --> Add a match start handler!
 
     /**
      * Create a new match making service.
@@ -78,13 +83,51 @@ public class MatchMakingService<M extends ManagedMatch> {
         return this;
     }
 
+    /**
+     * Set the way this service will match players.
+     *
+     * @see MatchMakingMode
+     */
+    public MatchMakingService<M> setMatchMakingMode(MatchMakingMode mode) {
+        mode = mode == null ? MatchMakingMode.BALANCED : mode;
+        this.mode = mode;
+        return this;
+    }
+
+
+    public MatchMakingMode getMatchMakingMode() {
+        return mode;
+    }
+
+
+    /**
+     * Register this service's listeners with forge and sponge.
+     * If the listeners are not registered, some functionality
+     * may not work as intended and may cause memory leaks!
+     */
     public void registerListeners() {
         unregisterListeners();
         MinecraftForge.EVENT_BUS.register(this);
+        Sponge.getEventManager().registerListeners(AscendencyServerPlugin.getInstance(), this);
     }
 
+    /**
+     * Unregisters the listeners with forge and sponge.
+     */
     public void unregisterListeners() {
         MinecraftForge.EVENT_BUS.unregister(this);
+        Sponge.getEventManager().unregisterListeners(this);
+    }
+
+    /**
+     * Clear all the players from this service's queue.
+     *
+     * @return Returns a clone of the current queue.
+     */
+    public Queue<Player> clearQueue() {
+        Queue<Player> players = new LinkedList<>(playerQueue);
+        playerQueue.clear();
+        return players;
     }
 
     /**
@@ -93,7 +136,20 @@ public class MatchMakingService<M extends ManagedMatch> {
      */
     private void tryMatch() {
         int creatableMatchCount = playerQueue.size() / minPlayersPerGame;
-        int optimizedMatchCount = creatableMatchCount > 0 ? playerQueue.size() / maxPlayersPerGame : creatableMatchCount;
+        int optimizedMatchCount;
+        switch (mode) {
+            case FASTEST:
+                optimizedMatchCount = creatableMatchCount;
+                break;
+            case BALANCED:
+                optimizedMatchCount = creatableMatchCount > 0 ? playerQueue.size() / maxPlayersPerGame : creatableMatchCount;
+                break;
+            case OPTIMAL:
+                optimizedMatchCount = playerQueue.size() / maxPlayersPerGame;
+                break;
+            default:
+                throw new IllegalStateException("Unknown MatchMakingMode: " + mode + " found!");
+        }
         while (optimizedMatchCount > 0) {
             M match = matchMakingFactory.get();
             Collection<UUID> players = new HashSet<>(minPlayersPerGame);
@@ -117,20 +173,72 @@ public class MatchMakingService<M extends ManagedMatch> {
         }
     }
 
+    public boolean addToQueue(Player player) {
+        PlayerMatchManager matchManager = SimplePlayerMatchManager.INSTANCE;
+        if (matchManager.getMatchOf(player.getUniqueId()).isPresent()) {
+            playerQueue.remove(player);
+            return false;
+        }
+        if (playerQueue.contains(player)) {
+            return true;
+        }
+        return playerQueue.add(player);
+    }
+
+    public void removeFromQueue(UUID uuid) {
+        playerQueue.removeIf(player -> player.getUniqueId().equals(uuid));
+    }
+
+    public void removeFromQueue(Player player) {
+        removeFromQueue(player.getUniqueId());
+    }
+
+    public void addToQueueAndTryMatch(Player player) {
+        if (addToQueue(player)) {
+            tryMatch();
+        }
+    }
+
+
     @Listener(order = Order.LAST)
     public void onPlayerJoin(ClientConnectionEvent.Join event) {
         Optional<ManagedMatch> current = SimplePlayerMatchManager.INSTANCE.getMatchOf(event.getTargetEntity().getUniqueId());
         if (!current.isPresent()) {
             //If not in previous match, then try to load them into the matchmaking queue.
-            playerQueue.add(event.getTargetEntity());
-            tryMatch();
+            addToQueueAndTryMatch(event.getTargetEntity());
         }
     }
 
     @Listener(order = Order.LAST)
     public void onPlayerLeaveMatch(PlayerLeftMatchEvent event) {
         Optional<Player> optionalPlayer = Sponge.getServer().getPlayer(event.getPlayer());
-        optionalPlayer.ifPresent(playerQueue::add); //Add the player to the queue.
+        optionalPlayer.ifPresent(this::addToQueueAndTryMatch); //Add the player to the queue.
+    }
+
+    /**
+     * Represents how this service will try to match players.
+     */
+    public enum MatchMakingMode {
+
+        /**
+         * Will try to match players once
+         * {@link #minPlayersPerGame} is reached.
+         */
+        FASTEST,
+
+        /**
+         * Will see if there are enough players to
+         * meet {@link #maxPlayersPerGame} if not,
+         * will match based on {@link #minPlayersPerGame}
+         */
+        BALANCED,
+
+        /**
+         * Will ONLY match based on if there are enough players to meet
+         * {@link #maxPlayersPerGame}.
+         */
+        OPTIMAL;
+
     }
 
 

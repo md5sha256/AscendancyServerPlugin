@@ -1,6 +1,5 @@
 package com.gmail.andrewandy.ascendencyserverplugin.game;
 
-import com.gmail.andrewandy.ascendencyserverplugin.game.gameclass.GameClass;
 import com.gmail.andrewandy.ascendencyserverplugin.game.rune.PlayerSpecificRune;
 
 /**
@@ -9,8 +8,6 @@ import com.gmail.andrewandy.ascendencyserverplugin.game.rune.PlayerSpecificRune;
 public interface Champion {
 
     String getName();
-
-    GameClass getGameClass();
 
     PlayerSpecificRune[] getRunes();
 

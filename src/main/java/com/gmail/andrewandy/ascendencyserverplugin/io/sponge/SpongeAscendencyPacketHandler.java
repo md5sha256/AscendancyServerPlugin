@@ -23,10 +23,11 @@ public class SpongeAscendencyPacketHandler implements RawDataListener {
                 return;
             }
             Class<? extends AscendencyPacket> casted = clazz.asSubclass(AscendencyPacket.class);
-            AscendencyPacket packet = casted.newInstance();
+            AscendencyPacket packet;
+            packet = casted.getDeclaredConstructor().newInstance();
             packet.fromBytes(data.readByteArray());
             AscendencyPacketHandler.getInstance().onMessage(packet);
-        } catch (IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+        } catch (ReflectiveOperationException e) {
             throw new IllegalStateException("Unable to interact with packet!", e);
         }
     }

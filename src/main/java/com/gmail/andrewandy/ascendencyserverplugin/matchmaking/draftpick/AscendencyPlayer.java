@@ -1,10 +1,12 @@
 package com.gmail.andrewandy.ascendencyserverplugin.matchmaking.draftpick;
 
 import com.gmail.andrewandy.ascendencyserverplugin.game.Champion;
+import com.gmail.andrewandy.ascendencyserverplugin.game.gameclass.GameClass;
 import com.gmail.andrewandy.ascendencyserverplugin.game.rune.Rune;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -17,6 +19,7 @@ public class AscendencyPlayer {
 
     Collection<Rune> appliedRunes = new HashSet<>();
     Champion champion;
+    GameClass gameClass;
     private UUID player;
 
     AscendencyPlayer(UUID player) {
@@ -39,6 +42,10 @@ public class AscendencyPlayer {
         return other.equals(player);
     }
 
+    public GameClass getGameClass() {
+        return gameClass;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -46,16 +53,18 @@ public class AscendencyPlayer {
 
         AscendencyPlayer that = (AscendencyPlayer) o;
 
-        if (player != null ? !player.equals(that.player) : that.player != null) return false;
-        if (appliedRunes != null ? !appliedRunes.equals(that.appliedRunes) : that.appliedRunes != null) return false;
-        return champion != null ? champion.equals(that.champion) : that.champion == null;
+        if (!Objects.equals(appliedRunes, that.appliedRunes)) return false;
+        if (!Objects.equals(champion, that.champion)) return false;
+        if (!Objects.equals(gameClass, that.gameClass)) return false;
+        return Objects.equals(player, that.player);
     }
 
     @Override
     public int hashCode() {
-        int result = player != null ? player.hashCode() : 0;
-        result = 31 * result + (appliedRunes != null ? appliedRunes.hashCode() : 0);
+        int result = appliedRunes != null ? appliedRunes.hashCode() : 0;
         result = 31 * result + (champion != null ? champion.hashCode() : 0);
+        result = 31 * result + (gameClass != null ? gameClass.hashCode() : 0);
+        result = 31 * result + (player != null ? player.hashCode() : 0);
         return result;
     }
 }
