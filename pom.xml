@@ -71,7 +71,7 @@
                         <filtering>true</filtering>
                     </resource>
                     <resource>
-                        <directory>src/main/java/com/gmail/andrewandy/ascendencyserverplugin</directory>
+                        <directory>src/main/java/com/gmail/andrewandy/ascendency/serverplugin</directory>
                         <includes>
                             <include>AscendencyServerPlugin.java</include>
                         </includes>
@@ -99,6 +99,32 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <inlude>com.gmail.andrewandy.ascendency.lib</inlude>
+                                </includes>
+                            </artifactSet>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.gmail.andrewandy.*</pattern>
+                                    <shadedPattern>com.gmail.andrewandy.shaded</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -191,6 +217,12 @@
             <artifactId>junit-jupiter</artifactId>
             <version>5.6.0</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.gmail.andrewandy</groupId>
+            <artifactId>AscendencyLib</artifactId>
+            <version>0.1-ALPHA</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
