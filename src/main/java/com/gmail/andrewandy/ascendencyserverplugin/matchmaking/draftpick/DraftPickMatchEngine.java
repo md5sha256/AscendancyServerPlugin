@@ -1,5 +1,11 @@
 package com.gmail.andrewandy.ascendencyserverplugin.matchmaking.draftpick;
 
+import com.gmail.andrewandy.ascendencyserverplugin.game.gameclass.GameClass;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scoreboard.Scoreboard;
+import org.spongepowered.api.text.Text;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
@@ -39,6 +45,25 @@ public class DraftPickMatchEngine {
 
     public void start() {
 
+    }
+
+    private void init() {
+        ascendencyPlayers.forEach(this::initPlayer);
+    }
+
+    public void rejoin(UUID player) throws IllegalArgumentException {
+        AscendencyPlayer ascendencyPlayer = wrapPlayer(player).orElseThrow(() -> new IllegalArgumentException("Player is not in this match!"));
+        initPlayer(ascendencyPlayer);
+    }
+
+    private void initPlayer(AscendencyPlayer player) {
+        GameClass gameClass = player.gameClass;
+        UUID playerUID = player.getPlayer();
+        Optional<Player> optionalPlayer = Sponge.getServer().getPlayer(playerUID);
+        optionalPlayer.ifPresent((playerObj) -> {
+            String command = "scoreboard players set " + playerObj.getName() + gameClass.getName();
+            Sponge.getServer().getConsole().sendMessage(Text.of(command)); //Send the command through to console.
+        });
     }
 
     public void pause() {

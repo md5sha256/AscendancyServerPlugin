@@ -2,3 +2,9 @@ MatchMaking:
   Mode: BALANCED
   Max-Players: 10
   Min-Players: 6
+
+ChunkLoading:
+#  Example:
+#   x: 0
+#   z: 0
+#   world: "world"

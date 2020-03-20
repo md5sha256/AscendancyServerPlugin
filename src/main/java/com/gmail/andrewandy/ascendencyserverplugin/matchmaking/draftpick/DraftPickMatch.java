@@ -167,8 +167,8 @@ public class DraftPickMatch implements ManagedMatch {
     }
 
     @Override
-    public void rejoinPlayer(UUID player) {
-        //TODO Implement code.
+    public void rejoinPlayer(UUID player) throws IllegalArgumentException {
+        engine.rejoin(player);
     }
 
     private void onLoading() {

@@ -5,6 +5,7 @@ import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.MatchMakingServic
 import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.draftpick.DraftPickMatch;
 import com.gmail.andrewandy.ascendencyserverplugin.matchmaking.match.SimplePlayerMatchManager;
 import com.gmail.andrewandy.ascendencyserverplugin.util.Common;
+import com.gmail.andrewandy.ascendencyserverplugin.util.ForceLoadChunks;
 import com.gmail.andrewandy.ascendencyserverplugin.util.YamlLoader;
 import com.google.inject.Inject;
 import ninja.leaping.configurate.ConfigurationNode;
@@ -52,6 +53,10 @@ public class AscendencyServerPlugin {
     @Inject
     private Logger logger;
 
+    @Inject
+    public AscendencyServerPlugin() {
+    }
+
     public static AscendencyServerPlugin getInstance() {
         return instance;
     }
@@ -79,6 +84,7 @@ public class AscendencyServerPlugin {
         Common.setPrefix("[CustomServerMod]");
         setupIO();
         loadSettings();
+        ForceLoadChunks.getInstance().loadSettings(); //Register the force event handler.
         SimplePlayerMatchManager.enableManager();
         loadMatchMaking(); //Load after the player match manager.
         Common.log(Level.INFO, "Plugin enabled!");
