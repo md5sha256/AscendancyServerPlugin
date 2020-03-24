@@ -1,7 +1,7 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick;
 
-import com.gmail.andrewandy.ascendency.serverplugin.game.gameclass.GameClass;
 import com.gmail.andrewandy.ascendency.serverplugin.game.Champion;
+import com.gmail.andrewandy.ascendency.serverplugin.game.gameclass.GameClass;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.Rune;
 
 import java.util.*;
@@ -25,6 +25,7 @@ public class AscendencyPlayer {
 
     /**
      * Get all runes which are currently applied to the player.
+     *
      * @return Returns a cloned collection of runes which are
      * currently active on the player.
      */
@@ -34,6 +35,7 @@ public class AscendencyPlayer {
 
     /**
      * Get the champion the player has selected.
+     *
      * @return Returns the Champion object which the player has selected.
      */
     public Champion getChampion() {
@@ -50,6 +52,7 @@ public class AscendencyPlayer {
 
     /**
      * Get the GameClass which the player selected.
+     *
      * @return Returns the GameClass object which the player has selected.
      */
     public GameClass getGameClass() {

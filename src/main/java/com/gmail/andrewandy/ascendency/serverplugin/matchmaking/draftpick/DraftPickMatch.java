@@ -1,10 +1,10 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick;
 
-import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.PlayerMatchManager;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.Rune;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.Team;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.ManagedMatch;
+import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.PlayerMatchManager;
 import com.gmail.andrewandy.ascendency.serverplugin.util.Common;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
@@ -230,6 +230,22 @@ public class DraftPickMatch implements ManagedMatch {
         return matchID;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DraftPickMatch that = (DraftPickMatch) o;
+        return maxPlayersPerTeam == that.maxPlayersPerTeam &&
+                minPlayersPerTeam == that.minPlayersPerTeam &&
+                Objects.equals(matchID, that.matchID) &&
+                Objects.equals(teams, that.teams) &&
+                matchState == that.matchState;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(matchID, teams, matchState, maxPlayersPerTeam, minPlayersPerTeam);
+    }
 
     /**
      * Represents a manager which will update the {@link AscendencyPlayer} data
@@ -299,22 +315,5 @@ public class DraftPickMatch implements ManagedMatch {
                 clearRunes(uuid);
             }
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DraftPickMatch that = (DraftPickMatch) o;
-        return maxPlayersPerTeam == that.maxPlayersPerTeam &&
-                minPlayersPerTeam == that.minPlayersPerTeam &&
-                Objects.equals(matchID, that.matchID) &&
-                Objects.equals(teams, that.teams) &&
-                matchState == that.matchState;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(matchID, teams, matchState, maxPlayersPerTeam, minPlayersPerTeam);
     }
 }

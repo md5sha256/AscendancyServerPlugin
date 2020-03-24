@@ -1,6 +1,5 @@
 package com.gmail.andrewandy.ascendency.serverplugin;
 
-import com.gmail.andrewandy.ascendency.lib.packet.util.CommonUtils;
 import com.gmail.andrewandy.ascendency.serverplugin.io.SpongeAscendencyPacketHandler;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.MatchMakingService;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick.DraftPickMatch;
@@ -8,6 +7,7 @@ import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.SimplePlay
 import com.gmail.andrewandy.ascendency.serverplugin.util.Common;
 import com.gmail.andrewandy.ascendency.serverplugin.util.ForceLoadChunks;
 import com.gmail.andrewandy.ascendency.serverplugin.util.YamlLoader;
+import com.gmail.andrewandy.ascendency.serverplugin.util.keybind.ActiveKeyHandler;
 import com.google.inject.Inject;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.yaml.YAMLConfigurationLoader;
@@ -83,8 +83,9 @@ public class AscendencyServerPlugin {
         instance = this;
         Common.setup();
         Common.setPrefix("[CustomServerMod]");
-        setupIO();
         loadSettings();
+        setupIO();
+        loadKeybindHandlers();
         ForceLoadChunks.getInstance().loadSettings(); //Register the force event handler.
         SimplePlayerMatchManager.enableManager();
         loadMatchMaking(); //Load after the player match manager.
@@ -95,6 +96,7 @@ public class AscendencyServerPlugin {
     public void onServerStop(GameStoppedServerEvent event) {
         SimplePlayerMatchManager.disableManager();
         unregisterIO();
+        unregisterKeybindHandlers();
         Common.log(Level.INFO, "Goodbye! Plugin has been disabled.");
         if (matchMatchMakingService != null) {
             matchMatchMakingService.clearQueue();
@@ -105,6 +107,24 @@ public class AscendencyServerPlugin {
     @Listener(order = Order.DEFAULT)
     public void onServerReload(GameReloadEvent event) {
         loadSettings();
+    }
+
+
+    public void loadSettings() {
+        Common.log(Level.INFO, "&bLoading settings from disk...");
+        long time = System.currentTimeMillis();
+        configurationLoader = new YamlLoader("settings.yml").getLoader();
+        Common.log(Level.INFO, "&aLoad complete! Took " + (System.currentTimeMillis() - time) + "ms.");
+    }
+
+    private void loadKeybindHandlers() {
+        Common.log(Level.INFO, "&b[Key Binds] Loading active key handler.");
+        unregisterKeybindHandlers();
+        Sponge.getEventManager().registerListeners(instance, ActiveKeyHandler.INSTANCE);
+    }
+
+    private void unregisterKeybindHandlers() {
+        Sponge.getEventManager().unregisterListeners(ActiveKeyHandler.INSTANCE);
     }
 
     private void setupIO() {
@@ -127,12 +147,6 @@ public class AscendencyServerPlugin {
         Common.log(Level.INFO, "Loading complete.");
     }
 
-    public void loadSettings() {
-        Common.log(Level.INFO, "&bLoading settings from disk...");
-        long time = System.currentTimeMillis();
-        configurationLoader = new YamlLoader("settings.yml").getLoader();
-        Common.log(Level.INFO, "&aLoad complete! Took " + (System.currentTimeMillis() - time) + "ms.");
-    }
 
     private void unregisterIO() {
         Common.log(Level.INFO, "Disabling Network Channel...");
@@ -159,7 +173,7 @@ public class AscendencyServerPlugin {
                 service.addToQueue(player);
             }
         }
-        Common.log(Level.INFO, "7a[Matchmaking] Loaded: Max-Players = " + max + ", Min-Players = " + min + ", Mode = " + CommonUtils.capitalise(mode.name().toLowerCase()));
+        Common.log(Level.INFO, "7a[Matchmaking] Loaded: Max-Players = " + max + ", Min-Players = " + min + ", Mode = " + com.gmail.andrewandy.ascendency.lib.packet.util.CommonUtils.capitalise(mode.name().toLowerCase()));
         matchMatchMakingService = service;
     }
 }

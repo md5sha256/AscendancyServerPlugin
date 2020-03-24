@@ -3,6 +3,12 @@ MatchMaking:
   Max-Players: 10
   Min-Players: 6
 
+KeyBinding:
+  #The custom team in which players should be placed into when they have
+  #Their active key pressed.
+  ScoreboardName: "dummy"
+  ScoreboardTeam: "unused"
+
 ChunkLoading:
 #  Example:
 #   x: 0

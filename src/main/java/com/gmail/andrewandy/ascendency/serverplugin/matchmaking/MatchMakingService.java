@@ -1,9 +1,9 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking;
 
+import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.ManagedMatch;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.PlayerMatchManager;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.SimplePlayerMatchManager;
-import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.event.MatchStartEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.event.PlayerJoinMatchEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.event.PlayerLeftMatchEvent;
@@ -83,6 +83,10 @@ public class MatchMakingService<M extends ManagedMatch> {
         return this;
     }
 
+    public MatchMakingMode getMatchMakingMode() {
+        return mode;
+    }
+
     /**
      * Set the way this service will match players.
      *
@@ -93,12 +97,6 @@ public class MatchMakingService<M extends ManagedMatch> {
         this.mode = mode;
         return this;
     }
-
-
-    public MatchMakingMode getMatchMakingMode() {
-        return mode;
-    }
-
 
     /**
      * Register this service's listeners with forge and sponge.

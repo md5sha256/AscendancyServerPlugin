@@ -1,8 +1,8 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match;
 
-import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.event.MatchEndedEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.Team;
+import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.event.MatchEndedEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.event.MatchStartEvent;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;

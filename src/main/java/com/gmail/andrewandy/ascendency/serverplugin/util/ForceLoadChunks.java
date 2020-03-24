@@ -19,11 +19,10 @@ import java.util.logging.Level;
  */
 public class ForceLoadChunks {
 
-    private Map<World, ChunkTicketManager.LoadingTicket> ticketMap = new HashMap<>();
-    private Collection<Location<? extends World>> locations = new HashSet<>();
-
     private static final ForceLoadChunks instance = new ForceLoadChunks();
     private static boolean init = false;
+    private Map<World, ChunkTicketManager.LoadingTicket> ticketMap = new HashMap<>();
+    private Collection<Location<? extends World>> locations = new HashSet<>();
 
     public static ForceLoadChunks getInstance() {
         if (!init && Sponge.getGame().isServerAvailable()) {
@@ -75,6 +74,7 @@ public class ForceLoadChunks {
 
     /**
      * Add a location whose chunk should be force loaded.
+     *
      * @param location The location to force-load.
      */
     public void addForceLoadLocation(Location<? extends World> location) {
@@ -97,6 +97,7 @@ public class ForceLoadChunks {
 
     /**
      * Remove a location from being force loaded by THIS instance.
+     *
      * @param location The location to stop force loading.
      */
     public void removeLocation(Location<? extends World> location) {
