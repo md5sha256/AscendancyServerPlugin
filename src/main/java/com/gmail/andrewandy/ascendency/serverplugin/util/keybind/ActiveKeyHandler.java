@@ -29,7 +29,7 @@ public enum ActiveKeyHandler implements KeyBindHandler {
             return;
         }
         scoreboard = node.getNode("ScoreboardName").getString();
-        scoreboard = node.getNode("ScoreboardTeam").getString();
+        team = node.getNode("ScoreboardTeam").getString();
     }
 
     @Override
