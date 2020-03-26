@@ -131,11 +131,13 @@ public class DraftPickMatch implements ManagedMatch {
 
     @Override
     public void stop(String endMessage) {
+        engine.end();
         //TODO Implement stop code here.
     }
 
     @Override
     public void resume(String resumeMessage) {
+        engine.resume();
         //Todo Implement resumption code here.
     }
 

@@ -14,13 +14,15 @@ import java.util.*;
  */
 public class AscendencyPlayer {
 
+    int relativeID;
     Collection<Rune> appliedRunes = new ArrayList<>(); //Allow duplicate runes?
     Champion champion;
     GameClass gameClass;
     private UUID player;
 
-    AscendencyPlayer(UUID player) {
+    AscendencyPlayer(UUID player, int relativeID) {
         this.player = player;
+        this.relativeID = relativeID;
     }
 
     /**
