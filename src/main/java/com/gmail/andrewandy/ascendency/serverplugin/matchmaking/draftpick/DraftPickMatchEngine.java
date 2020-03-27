@@ -2,6 +2,7 @@ package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick;
 
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
 import com.gmail.andrewandy.ascendency.serverplugin.game.gameclass.GameClass;
+import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.Team;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Entity;
@@ -10,8 +11,8 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
-import org.spongepowered.api.scoreboard.Score;
 import org.spongepowered.api.scoreboard.Scoreboard;
+import org.spongepowered.api.scoreboard.critieria.Criteria;
 import org.spongepowered.api.scoreboard.objective.Objective;
 import org.spongepowered.api.text.Text;
 
@@ -24,12 +25,13 @@ import java.util.*;
  * in order to keep track of data which cannot be directly attributed to the player,
  * or would be inefficient to do so.
  */
+
+//TODO integrate draft-picking with the UI
 public class DraftPickMatchEngine {
 
     private static Scoreboard scoreboard;
-    private static Objective damager, victim;
-    private static String relativeIDName;
-    private WeakReference<DraftPickMatch> matchReference;
+    private static Objective damagerObjective, victimObjective, relativeIDObjective;
+    private WeakReference<DraftPickMatch> matchReference; //Holds the reference to the match
     private Collection<AscendencyPlayer> ascendencyPlayers;
 
 
@@ -41,32 +43,24 @@ public class DraftPickMatchEngine {
         for (UUID uuid : collection) {
             this.ascendencyPlayers.add(new AscendencyPlayer(uuid, index++));
         }
-        initScoreBoard();
+        init();
     }
 
-    public void initScoreBoard() {
-        if (scoreboard != null) {
-            return;
-        }
-        ConfigurationNode node = AscendencyServerPlugin.getInstance().getSettings();
-        node = node.getNode("DamageScoreboard");
-        Objects.requireNonNull(node, "Invalid Config! DamageScoreboard is missing!");
-        String rawName, rawDamager, rawVictim;
-        rawName = node.getNode("ScoreboardPlayerID").getString();
-        rawDamager = node.getNode("ScoreboardDamager").getString();
-        rawVictim = node.getNode("ScoreboardVictim").getString();
-        relativeIDName = rawName;
-        damager = Objective.builder().name(rawDamager).build();
-        victim = Objective.builder().name(rawVictim).build();
-        scoreboard = Scoreboard.builder()
-                .objectives(Arrays.asList(damager, victim))
-                .build();
-    }
-
+    /**
+     * Get all the {@link AscendencyPlayer}s in this match.
+     *
+     * @return Returns a shall-cloned copy of the {@link AscendencyPlayer}s.
+     */
     Collection<AscendencyPlayer> getAscendencyPlayers() {
         return new HashSet<>(ascendencyPlayers);
     }
 
+    /**
+     * Get the {@link AscendencyPlayer} object for a given player.
+     *
+     * @param player The UUID of the player.
+     * @return Returns a populated optional or an empty optional if the player is not in this match.
+     */
     Optional<AscendencyPlayer> wrapPlayer(UUID player) {
         for (AscendencyPlayer ap : ascendencyPlayers) {
             if (ap.uuidMatches(player)) {
@@ -84,26 +78,6 @@ public class DraftPickMatchEngine {
         init();
     }
 
-    private void init() {
-        Sponge.getEventManager().registerListeners(AscendencyServerPlugin.getInstance(), this);
-        ascendencyPlayers.forEach(this::initPlayer);
-    }
-
-    public void rejoin(UUID player) throws IllegalArgumentException {
-        AscendencyPlayer ascendencyPlayer = wrapPlayer(player).orElseThrow(() -> new IllegalArgumentException("Player is not in this match!"));
-        initPlayer(ascendencyPlayer);
-    }
-
-    private void initPlayer(AscendencyPlayer player) {
-        GameClass gameClass = player.gameClass;
-        UUID playerUID = player.getPlayer();
-        Optional<Player> optionalPlayer = Sponge.getServer().getPlayer(playerUID);
-        optionalPlayer.ifPresent((playerObj) -> {
-            String command = "scoreboard players set " + playerObj.getName() + gameClass.getName() + "1";
-            Sponge.getServer().getConsole().sendMessage(Text.of(command)); //Send the command through to console.
-        });
-    }
-
     public void pause() {
 
     }
@@ -113,13 +87,67 @@ public class DraftPickMatchEngine {
     }
 
     public void end() {
-
+        if (!matchReference.isEnqueued()) {
+            matchReference.enqueue();
+        }
+        disable();
     }
 
     private void disable() {
         Sponge.getEventManager().unregisterListeners(this);
         ascendencyPlayers.clear();
     }
+
+    private void init() {
+        initScoreBoard();
+        Sponge.getEventManager().registerListeners(AscendencyServerPlugin.getInstance(), this);
+        ascendencyPlayers.forEach(this::initPlayer);
+        DraftPickMatch match = matchReference.get();
+        assert match != null;
+        match.getTeams().forEach(Team::calculateIDs); //Calculate the relative ids for the players.
+    }
+
+    private void initPlayer(AscendencyPlayer player) {
+        GameClass gameClass = player.gameClass;
+        UUID playerUID = player.getPlayer();
+        Optional<Player> optionalPlayer = Sponge.getServer().getPlayer(playerUID);
+        optionalPlayer.ifPresent((playerObj) -> {
+            relativeIDObjective.getOrCreateScore(playerObj.getTeamRepresentation()).setScore(player.relativeID);
+            String command = "scoreboard players set " + playerObj.getName() + gameClass.getName() + "1";
+            Sponge.getServer().getConsole().sendMessage(Text.of(command)); //Send the command through to console.
+        });
+    }
+
+    public void rejoin(UUID player) throws IllegalArgumentException {
+        AscendencyPlayer ascendencyPlayer = wrapPlayer(player).orElseThrow(() -> new IllegalArgumentException("Player is not in this match!"));
+        initPlayer(ascendencyPlayer);
+    }
+
+
+    /**
+     * Internal method, intilaises the scoreboard to synchronise data with
+     * the commndblock implementation of this game engine.
+     */
+    private void initScoreBoard() {
+        if (scoreboard != null) {
+            return;
+        }
+        ConfigurationNode node = AscendencyServerPlugin.getInstance().getSettings();
+        node = node.getNode("DamageScoreboard");
+        Objects.requireNonNull(node, "Invalid Config! DamageScoreboard is missing!");
+        String rawName, rawDamager, rawVictim;
+        rawName = node.getNode("ScoreboardPlayerID").getString();
+        rawDamager = node.getNode("ScoreboardDamager").getString();
+        rawVictim = node.getNode("ScoreboardVictim").getString();
+        String relativeIDName = rawName;
+        relativeIDObjective = Objective.builder().name(relativeIDName).criterion(Criteria.DUMMY).build();
+        damagerObjective = Objective.builder().name(rawDamager).criterion(Criteria.DUMMY).build();
+        victimObjective = Objective.builder().name(rawVictim).criterion(Criteria.DUMMY).build();
+        scoreboard = Scoreboard.builder()
+                .objectives(Arrays.asList(damagerObjective, victimObjective))
+                .build();
+    }
+
 
     //Register listeners for game logic.
 
@@ -129,12 +157,11 @@ public class DraftPickMatchEngine {
      */
     @Listener(order = Order.LAST)
     public void onDamage(DamageEntityEvent event) {
-        if (matchReference.isEnqueued()) {
+        DraftPickMatch match = matchReference.get();
+        if (matchReference.isEnqueued() || match == null) {
             disable();
             return;
         }
-        DraftPickMatch match = matchReference.get();
-        assert match != null;
         Cause cause = event.getCause();
         Entity victim = event.getTargetEntity();
         if (!(victim instanceof Player)) {
@@ -158,20 +185,15 @@ public class DraftPickMatchEngine {
                 event.setCancelled(true);
                 return;
             }
-            Optional<Score> optionalDamager = damager.getScore(Text.of(relativeIDName));
-            assert optionalDamager.isPresent(); //Scoreboard should have been set on initalisation.
-            Score score = optionalDamager.get();
-            score.setScore(optional.get().relativeID);
             actual = player;
             break; //Only take the first player in the list as a damager.
         }
         if (actual == null) {
             return;
         }
-        Optional<AscendencyPlayer> optional = wrapPlayer(victim.getUniqueId()); //Victim AP object.
-        assert optional.isPresent();
-        Optional<Score> optionalVictim = damager.getScore(Text.of(relativeIDName));
-        assert optionalVictim.isPresent();
-        optionalVictim.get().setScore(optional.get().relativeID);
+        Text victimText = ((Player) victim).getTeamRepresentation();
+        Text damagerText = actual.getTeamRepresentation();
+        victimObjective.getOrCreateScore(damagerText).setScore(relativeIDObjective.getOrCreateScore(victimText).getScore());
+        damagerObjective.getOrCreateScore(victimText).setScore(relativeIDObjective.getOrCreateScore(damagerText).getScore());
     }
 }

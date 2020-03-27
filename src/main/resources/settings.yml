@@ -18,3 +18,11 @@ ChunkLoading:
 #   x: 0
 #   z: 0
 #   world: "world"
+
+Teams:
+  Arctic:
+    - Min: 1
+    - Max: 5
+  Blasic:
+    - Min: 6
+    - Max: 10
