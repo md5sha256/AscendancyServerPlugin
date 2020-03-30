@@ -142,6 +142,13 @@ public enum SimplePlayerMatchManager implements PlayerMatchManager {
             return false;
         }
         Optional<ManagedMatch> optional = getMatchOf(player);
+        if (optional.isPresent()) {
+            ManagedMatch old = optional.get();
+            if (old != newMatch) {
+                return newMatch.acceptsNewPlayers() && optional.map(match -> match.isLobby() || match.isEnded()).orElse(false);
+            }
+            return true;
+        }
         return newMatch.acceptsNewPlayers() && optional.map(match -> match.isLobby() || match.isEnded()).orElse(false);
     }
 

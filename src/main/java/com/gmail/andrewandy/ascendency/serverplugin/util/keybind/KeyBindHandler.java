@@ -1,6 +1,6 @@
 package com.gmail.andrewandy.ascendency.serverplugin.util.keybind;
 
-import com.gmail.andrewandy.ascendency.lib.packet.keybind.AscendencyKey;
+import com.gmail.andrewandy.ascendency.lib.keybind.AscendencyKey;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;

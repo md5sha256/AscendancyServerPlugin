@@ -1,7 +1,7 @@
 package com.gmail.andrewandy.ascendency.serverplugin.io;
 
-import com.gmail.andrewandy.ascendency.lib.packet.AscendencyPacket;
-import com.gmail.andrewandy.ascendency.lib.packet.AscendencyPacketHandler;
+import com.gmail.andrewandy.ascendency.lib.AscendencyPacket;
+import com.gmail.andrewandy.ascendency.lib.AscendencyPacketHandler;
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
 import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
@@ -40,6 +40,10 @@ public class SpongeAscendencyPacketHandler extends AscendencyPacketHandler imple
         if (dataChannel != null) {
             Sponge.getChannelRegistrar().unbindChannel(dataChannel);
         }
+    }
+
+    public void sendMessageTo(Player player, AscendencyPacket packet) {
+        dataChannel.sendTo(player, (channelBuf) -> channelBuf.writeBytes(packet.getFormattedData()));
     }
 
     @Override

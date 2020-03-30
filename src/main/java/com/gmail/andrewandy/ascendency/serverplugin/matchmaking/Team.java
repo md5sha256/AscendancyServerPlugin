@@ -5,6 +5,7 @@ import java.util.*;
 public class Team implements Cloneable {
 
     private final int startingPlayerCount;
+    private final transient org.spongepowered.api.scoreboard.Team team;
     private Map<UUID, Integer> relativeIDs = new HashMap<>();
     private List<UUID> players;
     private String name;
@@ -19,7 +20,13 @@ public class Team implements Cloneable {
         this.name = Objects.requireNonNull(name);
         this.players = new ArrayList<>(players);
         this.startingPlayerCount = players.size();
+        this.team = org.spongepowered.api.scoreboard.Team.builder().name(name).build();
     }
+
+    public org.spongepowered.api.scoreboard.Team getScoreboardTeam() {
+        return team;
+    }
+
 
     public void addPlayers(UUID... players) {
         for (UUID uuid : players) {

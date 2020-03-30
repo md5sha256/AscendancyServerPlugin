@@ -8,10 +8,10 @@ DamageScoreboard:
   ScoreboardVictim: "lastVictim"
 
 KeyBinding:
-  #The custom team in which players should be placed into when they have
+  #The custom objective in which players should be placed into when they have
   #Their active key pressed.
-  ScoreboardName: "dummy"
-  ScoreboardTeam: "unused"
+  ScoreboardObjective: "keyBinding"
+  ScoreboardScore: "activeKey"
 
 ChunkLoading:
 #  Example:
@@ -23,6 +23,12 @@ Teams:
   Arctic:
     - Min: 1
     - Max: 5
-  Blasic:
+  Blazic:
     - Min: 6
     - Max: 10
+
+Champions:
+  Knavis:
+    lore:
+      - "Active: Some desc"
+      - "Passive: Some desc"

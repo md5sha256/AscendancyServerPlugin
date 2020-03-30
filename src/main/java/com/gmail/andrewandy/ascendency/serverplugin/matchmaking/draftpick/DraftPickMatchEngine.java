@@ -1,9 +1,10 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick;
 
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
-import com.gmail.andrewandy.ascendency.serverplugin.game.gameclass.GameClass;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.Team;
+import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.ManagedMatch;
 import ninja.leaping.configurate.ConfigurationNode;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
@@ -76,6 +77,7 @@ public class DraftPickMatchEngine {
 
     public void start() {
         init();
+        postInit();
     }
 
     public void pause() {
@@ -101,26 +103,40 @@ public class DraftPickMatchEngine {
     private void init() {
         initScoreBoard();
         Sponge.getEventManager().registerListeners(AscendencyServerPlugin.getInstance(), this);
-        ascendencyPlayers.forEach(this::initPlayer);
+        ascendencyPlayers.forEach(this::preInitPlayer);
         DraftPickMatch match = matchReference.get();
         assert match != null;
         match.getTeams().forEach(Team::calculateIDs); //Calculate the relative ids for the players.
     }
 
-    private void initPlayer(AscendencyPlayer player) {
-        GameClass gameClass = player.gameClass;
-        UUID playerUID = player.getPlayer();
+    private void postInit() {
+        ascendencyPlayers.forEach(this::postInitPlayer);
+    }
+
+    private void preInitPlayer(AscendencyPlayer player) {
+        //Does nothing
+    }
+
+    private void postInitPlayer(AscendencyPlayer ascendencyPlayer) {
+        ManagedMatch match = matchReference.get();
+        assert match != null;
+        UUID playerUID = ascendencyPlayer.getPlayer();
         Optional<Player> optionalPlayer = Sponge.getServer().getPlayer(playerUID);
         optionalPlayer.ifPresent((playerObj) -> {
-            relativeIDObjective.getOrCreateScore(playerObj.getTeamRepresentation()).setScore(player.relativeID);
-            String command = "scoreboard players set " + playerObj.getName() + gameClass.getName() + "1";
-            Sponge.getServer().getConsole().sendMessage(Text.of(command)); //Send the command through to console.
+            Team team = match.getTeamOf(playerUID);
+            assert team != null;
+            relativeIDObjective.getOrCreateScore(playerObj.getTeamRepresentation()).setScore(ascendencyPlayer.relativeID); //Set the relative ID
+            Optional<Scoreboard> serverBoard = Sponge.getServer().getServerScoreboard();
+            assert serverBoard.isPresent();
+            Scoreboard scoreboard = serverBoard.get();
+            scoreboard.registerTeam(team.getScoreboardTeam());
+            team.getScoreboardTeam().addMember(playerObj.getTeamRepresentation());
         });
     }
 
     public void rejoin(UUID player) throws IllegalArgumentException {
         AscendencyPlayer ascendencyPlayer = wrapPlayer(player).orElseThrow(() -> new IllegalArgumentException("Player is not in this match!"));
-        initPlayer(ascendencyPlayer);
+        preInitPlayer(ascendencyPlayer);
     }
 
 
@@ -143,9 +159,10 @@ public class DraftPickMatchEngine {
         relativeIDObjective = Objective.builder().name(relativeIDName).criterion(Criteria.DUMMY).build();
         damagerObjective = Objective.builder().name(rawDamager).criterion(Criteria.DUMMY).build();
         victimObjective = Objective.builder().name(rawVictim).criterion(Criteria.DUMMY).build();
-        scoreboard = Scoreboard.builder()
-                .objectives(Arrays.asList(damagerObjective, victimObjective))
-                .build();
+        scoreboard = Sponge.getServer().getServerScoreboard().orElseThrow(() -> new IllegalStateException("Server scoreboard not ready!"));
+        scoreboard.addObjective(damagerObjective);
+        scoreboard.addObjective(victimObjective);
+        scoreboard.addObjective(relativeIDObjective);
     }
 
 

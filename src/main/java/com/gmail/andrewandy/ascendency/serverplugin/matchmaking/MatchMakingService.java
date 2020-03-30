@@ -204,7 +204,14 @@ public class MatchMakingService<M extends ManagedMatch> {
         if (!current.isPresent()) {
             //If not in previous match, then try to load them into the matchmaking queue.
             addToQueueAndTryMatch(event.getTargetEntity());
+            System.out.println(playerQueue);
         }
+    }
+
+    @Listener(order = Order.LAST)
+    public void onPlayerDisconnect(ClientConnectionEvent.Disconnect event) {
+        System.out.println(playerQueue);
+        playerQueue.remove(event.getTargetEntity());
     }
 
     @Listener(order = Order.LAST)

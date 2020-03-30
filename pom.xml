@@ -113,7 +113,7 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
-                                    <inlude>com.gmail.andrewandy.ascendency.lib</inlude>
+                                    <inlude>com.gmail.andrewandy:AscendencyLib</inlude>
                                 </includes>
                             </artifactSet>
                             <relocations>

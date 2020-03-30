@@ -1,22 +1,22 @@
 package com.gmail.andrewandy.ascendency.serverplugin.util.keybind;
 
-import com.gmail.andrewandy.ascendency.lib.packet.keybind.AscendencyKey;
+import com.gmail.andrewandy.ascendency.lib.keybind.AscendencyKey;
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
 import com.gmail.andrewandy.ascendency.serverplugin.util.Common;
 import ninja.leaping.configurate.ConfigurationNode;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.scoreboard.critieria.Criteria;
+import org.spongepowered.api.scoreboard.objective.Objective;
 import org.spongepowered.api.text.Text;
 
-import java.util.Objects;
 import java.util.logging.Level;
 
 public enum ActiveKeyHandler implements KeyBindHandler {
 
     INSTANCE;
 
-    private String scoreboard;
-    private String team;
+    private String scoreName;
+    private Objective objective;
 
     ActiveKeyHandler() {
     }
@@ -28,8 +28,11 @@ public enum ActiveKeyHandler implements KeyBindHandler {
             Common.log(Level.INFO, "&b[Key Binds] Unable to find settings for ActiveKeyHandler.");
             return;
         }
-        scoreboard = node.getNode("ScoreboardName").getString();
-        team = node.getNode("ScoreboardTeam").getString();
+        String objectiveName = node.getNode("ScoreboardObjective").getString();
+        scoreName = node.getNode("ScoreboardScore").getString();
+        this.objective = Objective.builder().name(objectiveName).criterion(Criteria.DUMMY).build();
+        this.objective.getOrCreateScore(Text.of(scoreName));
+
     }
 
     @Override
@@ -39,13 +42,13 @@ public enum ActiveKeyHandler implements KeyBindHandler {
 
     @Override
     public void onKeyPress(Player player) {
-        String command = "scoreboard " + scoreboard + "set " + Objects.requireNonNull(player).getName() + "to " + team;
-        Sponge.getServer().getConsole().sendMessage(Text.of(command));
+        player.getScoreboard().addObjective(objective);
+        objective.getOrCreateScore(Text.of(scoreName)).setScore(1);
     }
 
     @Override
     public void onKeyRelease(Player player) {
-        String command = "scoreboard " + scoreboard + "reset " + Objects.requireNonNull(player).getName();
-        Sponge.getServer().getConsole().sendMessage(Text.of(command));
+        player.getScoreboard().addObjective(objective);
+        objective.getOrCreateScore(Text.of(scoreName)).setScore(0);
     }
 }
