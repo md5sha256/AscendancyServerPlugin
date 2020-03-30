@@ -43,7 +43,6 @@ public class DraftPickMatchEngine {
         for (UUID uuid : collection) {
             this.ascendencyPlayers.add(new AscendencyPlayer(uuid, index++));
         }
-        init();
     }
 
     /**
@@ -68,10 +67,6 @@ public class DraftPickMatchEngine {
             }
         }
         return Optional.empty();
-    }
-
-    public void tick() {
-        //TODO Update the runes, etc
     }
 
     public void start() {

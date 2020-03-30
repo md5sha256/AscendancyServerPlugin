@@ -128,11 +128,15 @@ public class MatchMakingService<M extends ManagedMatch> {
         return players;
     }
 
+    public int getQueueSize() {
+        return playerQueue.size();
+    }
+
     /**
      * Will try to start a new match, once it is unsuccessful,
      * this method will stop trying to start new matches.
      */
-    private void tryMatch() {
+    public void tryMatch() {
         int creatableMatchCount = playerQueue.size() / minPlayersPerGame;
         int optimizedMatchCount;
         switch (mode) {

@@ -32,7 +32,7 @@ public class DraftPickMatch implements ManagedMatch {
 
     public DraftPickMatch(int maxPlayersPerTeam, Collection<Team> teams) {
         this.matchID = UUID.randomUUID();
-        if (maxPlayersPerTeam > minPlayersPerTeam) {
+        if (maxPlayersPerTeam < minPlayersPerTeam) {
             throw new IllegalArgumentException("Max players is invalid!");
         }
         for (Team team : teams) {
