@@ -1,6 +1,7 @@
 package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
 
 import com.gmail.andrewandy.ascendency.lib.game.data.IChampionData;
+import com.gmail.andrewandy.ascendency.serverplugin.game.ability.Ability;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
 
 import java.util.List;
@@ -17,5 +18,7 @@ public interface Challenger {
     List<String> getLore();
 
     IChampionData toData();
+
+    Ability[] getAbilities();
 
 }

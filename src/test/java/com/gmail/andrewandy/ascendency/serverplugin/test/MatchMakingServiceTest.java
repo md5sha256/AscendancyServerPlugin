@@ -15,17 +15,18 @@ public class MatchMakingServiceTest {
     private DraftPickMatch match = new DraftPickMatch(maxPlayers, new HashSet<>()).setMinPlayersPerTeam(minPlayers);
     private Collection<MockPlayer> players = new HashSet<>();
 
-    public void populatePlayers() {
+    public MatchMakingServiceTest() {
 
+    }
+
+    public void populatePlayers() {
     }
 
     public void setupTeams() {
         //Make 2 teams;
         for (int index = 0; index < 2; index++) {
-            Team team = new Team(String.valueOf(index), );
+            Team team = new Team(String.valueOf(index), null);
         }
-
-
     }
 
 }

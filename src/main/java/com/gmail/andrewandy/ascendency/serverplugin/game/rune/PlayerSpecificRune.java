@@ -17,6 +17,12 @@ public interface PlayerSpecificRune extends EntityRune {
         clearFrom((Player) object);
     }
 
+    default void clearFrom(Entity entity) {
+        if (entity instanceof Player) {
+            clearFrom((Player) entity);
+        }
+    }
+
     @Override
     default void applyTo(Entity entity) {
         if (!canApplyTo(entity)) {
