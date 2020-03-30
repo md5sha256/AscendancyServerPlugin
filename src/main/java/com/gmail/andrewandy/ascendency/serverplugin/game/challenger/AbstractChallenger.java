@@ -1,5 +1,6 @@
 package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
 
+import com.gmail.andrewandy.ascendency.serverplugin.game.ability.Ability;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
 
 import java.util.List;
@@ -9,11 +10,17 @@ public abstract class AbstractChallenger implements Challenger {
     private final String name;
     private final PlayerSpecificRune[] runes;
     private final List<String> lore;
+    private Ability[] abilities;
 
-    public AbstractChallenger(String name, PlayerSpecificRune[] runes, List<String> lore) {
+    public AbstractChallenger(String name, Ability[] abilities, PlayerSpecificRune[] runes, List<String> lore) {
         this.name = name;
         this.runes = runes;
         this.lore = lore;
+    }
+
+    @Override
+    public Ability[] getAbilities() {
+        return abilities;
     }
 
     @Override

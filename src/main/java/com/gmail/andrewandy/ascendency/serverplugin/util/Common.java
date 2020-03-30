@@ -3,12 +3,15 @@ package com.gmail.andrewandy.ascendency.serverplugin.util;
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.manipulator.mutable.entity.HealthData;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class Common {
@@ -46,6 +49,16 @@ public class Common {
                 logger.debug(message);
             }
         }
+    }
+
+    public static long toTicks(long time, TimeUnit timeUnit) {
+        return TimeUnit.MILLISECONDS.convert(time, timeUnit) * 5; //one tick = 5ms
+    }
+
+    public static void addHealth(Player player, double health) {
+        HealthData data = player.getHealthData();
+        data.set(data.health().transform((val) -> val + health));
+        player.offer(data);
     }
 
     public static String colorise(String string) {
