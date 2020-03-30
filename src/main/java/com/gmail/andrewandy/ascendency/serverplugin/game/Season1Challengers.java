@@ -19,23 +19,13 @@ import java.util.stream.Collectors;
 /**
  * Reprsents the instances of all champions in "Season 1"
  */
-public enum Season1Champions implements Champion, DataSerializable {
+public enum Season1Challengers implements Challenger, DataSerializable {
 
     KNAVIS(),
     ASTSRICTION(),
     SOLACE(),
     VENGLIS(),
-    BREEZY(),
-    STYX(),
-    CORSAIR(),
-    CRYSTAL(),
-    BELLA(),
-    KYE(),
-    HILDA(),
-    BERTON(),
-    NIKOLAS(),
-    VULTURE(),
-    TWIST();
+    BREEZY();
 
     private final int version = 0;
     private final DataContainer dataContainer = new MemoryDataContainer().set(DataQuery.of("ordinal"), ordinal());
@@ -51,7 +41,7 @@ public enum Season1Champions implements Champion, DataSerializable {
         return nodes.parallelStream().map(ConfigurationNode::getString).collect(Collectors.toList());
     }
 
-    Season1Champions(PlayerSpecificRune... runes) {
+    Season1Challengers(PlayerSpecificRune... runes) {
         this.runes = runes;
         this.lore = getLoreOf(CommonUtils.capitalise(name().toLowerCase()));
         GameRegistry.INSTANCE.mapChampion(AscendencyChampions.valueOf(name()), this, false);

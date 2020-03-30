@@ -1,6 +1,6 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick;
 
-import com.gmail.andrewandy.ascendency.serverplugin.game.Champion;
+import com.gmail.andrewandy.ascendency.serverplugin.game.Challenger;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.Rune;
 
 import java.util.*;
@@ -15,7 +15,7 @@ public class AscendencyPlayer {
 
     int relativeID;
     Collection<Rune> appliedRunes = new ArrayList<>(); //Allow duplicate runes?
-    Champion champion;
+    Challenger challenger;
     private UUID player;
 
     AscendencyPlayer(UUID player, int relativeID) {
@@ -38,8 +38,8 @@ public class AscendencyPlayer {
      *
      * @return Returns the Champion object which the player has selected.
      */
-    public Champion getChampion() {
-        return champion;
+    public Challenger getChallenger() {
+        return challenger;
     }
 
     public UUID getPlayer() {
@@ -58,14 +58,14 @@ public class AscendencyPlayer {
         AscendencyPlayer that = (AscendencyPlayer) o;
 
         if (!Objects.equals(appliedRunes, that.appliedRunes)) return false;
-        if (!Objects.equals(champion, that.champion)) return false;
+        if (!Objects.equals(challenger, that.challenger)) return false;
         return Objects.equals(player, that.player);
     }
 
     @Override
     public int hashCode() {
         int result = appliedRunes != null ? appliedRunes.hashCode() : 0;
-        result = 31 * result + (champion != null ? champion.hashCode() : 0);
+        result = 31 * result + (challenger != null ? challenger.hashCode() : 0);
         result = 31 * result + (player != null ? player.hashCode() : 0);
         return result;
     }

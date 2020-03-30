@@ -1,7 +1,6 @@
 package com.gmail.andrewandy.ascendency.serverplugin;
 
-import com.gmail.andrewandy.ascendency.lib.game.AscendencyChampions;
-import com.gmail.andrewandy.ascendency.serverplugin.game.Season1Champions;
+import com.gmail.andrewandy.ascendency.serverplugin.game.Season1Challengers;
 import com.gmail.andrewandy.ascendency.serverplugin.io.SpongeAscendencyPacketHandler;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.MatchMakingService;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick.DraftPickMatch;
@@ -79,7 +78,7 @@ public class AscendencyServerPlugin {
     @Listener(order = Order.DEFAULT)
     public void onServerStart(GameStartedServerEvent event) {
         instance = this;
-        String load = Season1Champions.LOAD; //Load up S1 champions.
+        String load = Season1Challengers.LOAD; //Load up S1 champions.
         Common.setup();
         Common.setPrefix("[CustomServerMod]");
         loadSettings();

@@ -4,7 +4,7 @@ import com.gmail.andrewandy.ascendency.lib.AscendencyPacket;
 import com.gmail.andrewandy.ascendency.lib.game.AscendencyChampions;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataMarkerPacket;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataPacket;
-import com.gmail.andrewandy.ascendency.serverplugin.game.Champion;
+import com.gmail.andrewandy.ascendency.serverplugin.game.Challenger;
 import com.gmail.andrewandy.ascendency.serverplugin.io.SpongeAscendencyPacketHandler;
 import com.gmail.andrewandy.ascendency.serverplugin.util.Common;
 import org.spongepowered.api.Sponge;
@@ -28,9 +28,9 @@ public enum GameRegistry {
     private Map<UUID, Task> syncGuard = new HashMap<>();
     private Collection<UUID> notUpdated = ConcurrentHashMap.newKeySet();
 
-    private Map<AscendencyChampions, Champion> championRegistry = new HashMap<>();
+    private Map<AscendencyChampions, Challenger> championRegistry = new HashMap<>();
 
-    public void mapChampion(AscendencyChampions champion, Champion object, boolean invalidate) {
+    public void mapChampion(AscendencyChampions champion, Challenger object, boolean invalidate) {
         championRegistry.remove(champion);
         championRegistry.put(champion, object);
         if (invalidate) {
@@ -92,7 +92,7 @@ public enum GameRegistry {
         syncGuard.put(uuid, null);
         ChampionDataMarkerPacket packet = new ChampionDataMarkerPacket(championRegistry.size());
         Queue<AscendencyPacket> packets = new ArrayDeque<>(championRegistry.size() + 1);
-        championRegistry.values().forEach((champion -> packets.add(new ChampionDataPacket(champion.toData()))));
+        championRegistry.values().forEach((challenger -> packets.add(new ChampionDataPacket(challenger.toData()))));
         packets.add(packet);
         Optional<Player> optional;
         if (async) {

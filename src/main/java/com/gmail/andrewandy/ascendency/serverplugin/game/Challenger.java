@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Represents a champion which players can select.
  */
-public interface Champion {
+public interface Challenger {
 
     String getName();
 
