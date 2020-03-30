@@ -4,7 +4,7 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 
-public enum Season1Runes implements PlayerSpecificRune  {
+public enum Season1Runes implements PlayerSpecificRune {
     ;
 
     @Override

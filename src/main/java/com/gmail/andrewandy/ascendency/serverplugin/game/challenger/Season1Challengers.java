@@ -1,7 +1,6 @@
 package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
 
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
-import com.gmail.andrewandy.ascendency.serverplugin.game.challenger.Challenger;
 import ninja.leaping.configurate.ConfigurationNode;
 
 import java.util.List;
@@ -18,20 +17,19 @@ public enum Season1Challengers {
     VENGLIS(null),
     BREEZY(null);
 
+    public static final String LOAD = null; //Invoke to force classloader to load this class
     private final int version = 0;
     private final Challenger challengerObject;
 
-    public static final String LOAD = null; //Invoke to force classloader to load this class
+    Season1Challengers(Challenger challengerObject) {
+        this.challengerObject = challengerObject;
+    }
 
     public static List<String> getLoreOf(String name) {
         ConfigurationNode node = AscendencyServerPlugin.getInstance().getSettings();
         node = node.getNode("Champions");
         List<? extends ConfigurationNode> nodes = node.getNode(name).getNode("lore").getChildrenList();
         return nodes.parallelStream().map(ConfigurationNode::getString).collect(Collectors.toList());
-    }
-
-    Season1Challengers(Challenger challengerObject) {
-        this.challengerObject = challengerObject;
     }
 
     public Challenger asChallenger() {

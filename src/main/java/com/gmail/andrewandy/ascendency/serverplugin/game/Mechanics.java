@@ -9,7 +9,8 @@ public class Mechanics {
         ATTACK_DAMAGE, ABILITY_POWER;
 
 
-        DamageType() {}
+        DamageType() {
+        }
 
         double calculateDamage(Challenger challenger, double damage) {
             //return challenger.getDamageType() == this ? damage : damage * modifier;

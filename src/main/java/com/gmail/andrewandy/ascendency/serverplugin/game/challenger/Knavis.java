@@ -21,32 +21,22 @@ public class Knavis extends AbstractChallenger implements Challenger {
 
     private static final Knavis instance = new Knavis();
 
-    public static Knavis getInstance() {
-        return instance;
-    }
-
     private Knavis() {
         super("Knavis", new PlayerSpecificRune[]{ChosenOTEarth.instance}, Collections.emptyList());
     }
 
+    public static Knavis getInstance() {
+        return instance;
+    }
+
+    @Override
+    public IChampionData toData() {
+        return null;
+    }
 
     private static class LivingGift implements Ability {
 
         private Map<UUID, Integer> isActive = new HashMap<>();
-
-        private class LivingGiftUseEvent extends AscendencyServerEvent {
-
-            private Cause cause;
-
-            public LivingGiftUseEvent(Player player) {
-                this.cause = Cause.builder().named("Player", player).build();
-            }
-
-            @Override
-            public Cause getCause() {
-                return cause;
-            }
-        }
 
         @Override
         public boolean isPassive() {
@@ -76,6 +66,20 @@ public class Knavis extends AbstractChallenger implements Challenger {
                 isActive.replace(player.getUniqueId(), hits); //Update hit count
             }
         }
+
+        private class LivingGiftUseEvent extends AscendencyServerEvent {
+
+            private Cause cause;
+
+            public LivingGiftUseEvent(Player player) {
+                this.cause = Cause.builder().named("Player", player).build();
+            }
+
+            @Override
+            public Cause getCause() {
+                return cause;
+            }
+        }
     }
 
     /*
@@ -87,12 +91,12 @@ public class Knavis extends AbstractChallenger implements Challenger {
         private static final ChosenOTEarth instance = new ChosenOTEarth();
         private Collection<UUID> isActive = new HashSet<>();
 
-        public static ChosenOTEarth getInstance() {
-            return instance;
-        }
-
         private ChosenOTEarth() {
             Sponge.getEventManager().registerListeners(AscendencyServerPlugin.getInstance(), this);
+        }
+
+        public static ChosenOTEarth getInstance() {
+            return instance;
         }
 
         @Override
@@ -161,10 +165,5 @@ public class Knavis extends AbstractChallenger implements Challenger {
             }
 
         }
-    }
-
-    @Override
-    public IChampionData toData() {
-        return null;
     }
 }

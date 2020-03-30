@@ -1,11 +1,12 @@
 package com.gmail.andrewandy.ascendency.serverplugin.game.rune;
 
+import com.gmail.andrewandy.ascendency.serverplugin.util.game.Tickable;
 import org.spongepowered.api.data.DataSerializable;
 
 /**
  * Represents an Ascnedency "Rune", can be applied to any object.
  */
-public interface Rune extends DataSerializable {
+public interface Rune extends DataSerializable, Tickable {
 
 
     /**
