@@ -1,4 +1,4 @@
-package com.gmail.andrewandy.ascendency.serverplugin.game;
+package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
 
 import com.gmail.andrewandy.ascendency.lib.game.data.IChampionData;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;

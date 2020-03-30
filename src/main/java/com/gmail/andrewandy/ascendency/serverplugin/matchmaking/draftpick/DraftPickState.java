@@ -1,6 +1,6 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick;
 
-import com.gmail.andrewandy.ascendency.serverplugin.game.Challenger;
+import com.gmail.andrewandy.ascendency.serverplugin.game.challenger.Challenger;
 
 import java.util.*;
 

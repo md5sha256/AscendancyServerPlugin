@@ -1,5 +1,7 @@
 package com.gmail.andrewandy.ascendency.serverplugin.game;
 
+import com.gmail.andrewandy.ascendency.serverplugin.game.challenger.Challenger;
+
 public class Mechanics {
 
     public enum DamageType {

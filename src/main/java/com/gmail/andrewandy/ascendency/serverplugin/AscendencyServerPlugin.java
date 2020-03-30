@@ -1,6 +1,6 @@
 package com.gmail.andrewandy.ascendency.serverplugin;
 
-import com.gmail.andrewandy.ascendency.serverplugin.game.Season1Challengers;
+import com.gmail.andrewandy.ascendency.serverplugin.game.challenger.Season1Challengers;
 import com.gmail.andrewandy.ascendency.serverplugin.io.SpongeAscendencyPacketHandler;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.MatchMakingService;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick.DraftPickMatch;
