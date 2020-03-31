@@ -66,7 +66,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
         }
 
         @Override
-        public boolean isActive()  {
+        public boolean isActive() {
             return true;
         }
 
@@ -164,8 +164,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
             }
             Player playerObj = optionalPlayer.get();
             long val = tickHistory.get(playerObj.getUniqueId());
-            val = val == 0 ? val : val - 1;
-            tickHistory.replace(playerObj.getUniqueId(), val);
+            tickHistory.replace(playerObj.getUniqueId(), 0L);
             stacks.compute(uuid, ((player, stack) -> {
                 stack = stack == null ? 1 : stack; //Unboxing here may throw nullpointer.
                 double health = 3;
@@ -203,6 +202,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
         @Override
         public void tick() {
             tickHistory.entrySet().removeIf((entry -> {
+                entry.setValue(entry.getValue() + 1);
                 if (entry.getValue() >= Common.toTicks(6, TimeUnit.SECONDS)) {
                     stacks.remove(entry.getKey()); //Remove from stack history
                     return true;
