@@ -271,7 +271,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
             if (!optional.isPresent()) {
                 throw new IllegalStateException("Potion effect data could not be gathered for " + player.getUniqueId().toString());
             }
-            PotionEffect entanglement = (PotionEffect) new BuffEffectEntangled(4, 1); //Safe cast as per forge's runtime changes
+            PotionEffect entanglement = (PotionEffect) (Object) new BuffEffectEntangled(4, 1); //Safe cast as per forge's runtime changes
             PotionEffectData data = optional.get();
             PotionEffect[] effects = new PotionEffect[]{PotionEffect.builder()
                     //Level 2 movement speed

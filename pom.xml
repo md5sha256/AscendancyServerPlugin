@@ -185,6 +185,10 @@
             <id>spongepowered-repo</id>
             <url>https://repo.spongepowered.org/maven/</url>
         </repository>
+        <repository>
+            <id>Mod Maven</id>
+            <url>https://modmaven.k-4u.nl</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -234,6 +238,13 @@
             <groupId>am2</groupId>
             <artifactId>arsmagica2</artifactId>
             <version>1.5.0-21</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>mezz.jei</groupId>
+            <artifactId>jei_1.10.2</artifactId>
+            <version>3.7.8.235</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
