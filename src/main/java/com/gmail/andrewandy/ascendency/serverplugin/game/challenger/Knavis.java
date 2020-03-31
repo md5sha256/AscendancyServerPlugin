@@ -163,16 +163,15 @@ public class Knavis extends AbstractChallenger implements Challenger {
                 return;
             }
             Player playerObj = optionalPlayer.get();
-            long val = tickHistory.get(playerObj.getUniqueId());
             tickHistory.replace(playerObj.getUniqueId(), 0L);
-            stacks.compute(uuid, ((player, stack) -> {
-                stack = stack == null ? 1 : stack; //Unboxing here may throw nullpointer.
+            stacks.compute(uuid, ((UUID player, Integer stack) -> {
+                int stackVal = stack == null ? 0 : stack; //Unboxing here may throw nullpointer.
                 double health = 3;
-                for (int index = 1; index < stack; ) {
+                for (int index = 1; index < stackVal;) {
                     health += index++;
                 }
                 Common.addHealth(playerObj, health); //Set the health of the player based on stacks.
-                return stack == 4 ? stack : stack + 1; //If stack = 4, then max has been reached, therefore its 4 or stack + 1;
+                return stackVal == 4 ? stackVal : stackVal + 1; //If stack = 4, then max has been reached, therefore its 4 or stack + 1;
             }));
         }
 
@@ -201,14 +200,14 @@ public class Knavis extends AbstractChallenger implements Challenger {
          */
         @Override
         public void tick() {
-            tickHistory.entrySet().removeIf((entry -> {
-                entry.setValue(entry.getValue() + 1);
+            tickHistory.entrySet().removeIf((Map.Entry<UUID, Long> entry) -> {
+                entry.setValue(entry.getValue() + 1); //Increment tick count
                 if (entry.getValue() >= Common.toTicks(6, TimeUnit.SECONDS)) {
                     stacks.remove(entry.getKey()); //Remove from stack history
                     return true;
                 }
                 return false;
-            })); //Clear if greater than the number of ticks in 6 seconds.
+            }); //Clear if greater than the number of ticks in 6 seconds.
         }
     }
 }
