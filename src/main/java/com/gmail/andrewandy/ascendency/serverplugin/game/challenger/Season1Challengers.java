@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public enum Season1Challengers {
 
     KNAVIS(Knavis.getInstance()),
-    ASTSRICTION(null),
+    ASTSRICTION(Astricion.getInstance()),
     SOLACE(null),
     VENGLIS(null),
     BREEZY(null);

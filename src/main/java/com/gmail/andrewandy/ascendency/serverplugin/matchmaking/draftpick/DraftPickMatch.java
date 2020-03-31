@@ -78,6 +78,11 @@ public class DraftPickMatch implements ManagedMatch {
     }
 
     @Override
+    public DraftPickMatchEngine getGameEngine() {
+        return engine;
+    }
+
+    @Override
     public boolean addPlayer(Team team, UUID player) {
         if (!teams.contains(team)) {
             throw new IllegalArgumentException("Team specified is not registered.");
@@ -266,9 +271,7 @@ public class DraftPickMatch implements ManagedMatch {
                 return false;
             }
             rune.applyTo(playerObj.get());
-            Optional<AscendencyPlayer> ascendencyPlayer = engine.wrapPlayer(player);
-            assert ascendencyPlayer.isPresent();
-            return ascendencyPlayer.get().appliedRunes.add(rune);
+            return true;
         }
 
         public boolean removeRuneFrom(PlayerSpecificRune rune, UUID player) {
@@ -280,9 +283,7 @@ public class DraftPickMatch implements ManagedMatch {
                 return false;
             }
             rune.clearFrom(playerObj.get());
-            Optional<AscendencyPlayer> ascendencyPlayer = engine.wrapPlayer(player);
-            assert ascendencyPlayer.isPresent();
-            return ascendencyPlayer.get().appliedRunes.remove(rune);
+            return true;
         }
 
         public void applyRuneToAll(PlayerSpecificRune rune) {
@@ -298,18 +299,17 @@ public class DraftPickMatch implements ManagedMatch {
         }
 
         public void clearRunes(UUID player) {
-            Optional<AscendencyPlayer> ascendencyPlayer = engine.wrapPlayer(player);
+            Optional<AscendencyPlayer> ascendencyPlayer = engine.getGamePlayerOf(player);
             assert ascendencyPlayer.isPresent();
             AscendencyPlayer actual = ascendencyPlayer.get();
             Optional<Player> optionalPlayer = Sponge.getServer().getPlayer(player);
             optionalPlayer.ifPresent(
                     (playerObj) -> {
-                        for (Rune rune : actual.appliedRunes) {
+                        for (Rune rune : actual.getChallenger().getRunes()) {
                             rune.clearFrom(playerObj);
                         }
                     }
             );
-            actual.appliedRunes.clear();
         }
 
         public void clearRunesFromAll() {

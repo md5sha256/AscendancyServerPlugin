@@ -1,5 +1,6 @@
 package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
 
+import am2.buffs.BuffEffectEntangled;
 import com.gmail.andrewandy.ascendency.lib.game.data.IChampionData;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataImpl;
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
@@ -7,11 +8,16 @@ import com.gmail.andrewandy.ascendency.serverplugin.game.ability.Ability;
 import com.gmail.andrewandy.ascendency.serverplugin.game.event.AllyApplyEffectEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.AbstractRune;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
+import com.gmail.andrewandy.ascendency.serverplugin.game.util.LocationMark;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.AscendencyServerEvent;
+import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.ManagedMatch;
+import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.SimplePlayerMatchManager;
+import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.engine.GameEngine;
+import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.engine.GamePlayer;
 import com.gmail.andrewandy.ascendency.serverplugin.util.Common;
+import com.gmail.andrewandy.ascendency.serverplugin.util.game.Tickable;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.data.manipulator.mutable.entity.HealthData;
 import org.spongepowered.api.effect.potion.PotionEffect;
@@ -27,15 +33,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 
+/**
+ * Represents the Knavis challenger. All abiliities and runes for Knavis can be found here.
+ */
 public class Knavis extends AbstractChallenger implements Challenger {
 
     private static final Knavis instance = new Knavis();
 
     private Knavis() {
         super("Knavis",
-                new Ability[]{LivingGift.instance}, //Abilities
-                new PlayerSpecificRune[]{ChosenOTEarth.instance}, //Runes
+                new Ability[]{ShadowsRetreat.instance, LivingGift.instance}, //Abilities
+                new PlayerSpecificRune[]{ChosenOTEarth.instance, HeartOfTheDryad.instance, BlessingOfTeleportation.instance}, //Runes
                 Season1Challengers.getLoreOf("Knavis")); //Lore
     }
 
@@ -52,7 +62,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
         }
     }
 
-    private static class LivingGift implements Ability {
+    public static class LivingGift implements Ability {
 
         private static LivingGift instance = new LivingGift();
         private Map<UUID, Integer> hitHistory = new HashMap<>();
@@ -114,10 +124,135 @@ public class Knavis extends AbstractChallenger implements Challenger {
         }
     }
 
-    private static class HeartOfTheDryad extends AbstractRune {
+    public static class ShadowsRetreat implements Ability, Tickable {
+
+        public static final Long[] defaultTickThreshold = new Long[]{Common.toTicks(6, TimeUnit.SECONDS), Common.toTicks(6, TimeUnit.SECONDS)};
+        private static final ShadowsRetreat instance = new ShadowsRetreat();
+        private UUID uuid = UUID.randomUUID();
+        private Map<UUID, LocationMark> dataMap = new HashMap<>();
+        private BiFunction<UUID, LocationMark, Long[]> tickThreholdFunction;
+        private ShadowsRetreat() {
+        }
+
+        public static ShadowsRetreat getInstance() {
+            return instance;
+        }
+
+        public void setTickThresholdSupplier(BiFunction<UUID, LocationMark, Long[]> tickThreholdFunction) {
+            this.tickThreholdFunction = tickThreholdFunction;
+        }
+
+        public Optional<LocationMark> getMarkFor(UUID player) {
+            if (dataMap.containsKey(player)) {
+                return Optional.of(dataMap.get(player));
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public UUID getUniqueID() {
+            return uuid;
+        }
+
+        @Override
+        public String getName() {
+            return "Shadow's Retreat";
+        }
+
+        @Override
+        public boolean isPassive() {
+            return false;
+        }
+
+        @Override
+        public boolean isActive() {
+            return true;
+        }
+
+        @Override
+        public void tick() {
+            dataMap.forEach((UUID player, LocationMark mark) -> {
+                Long[] ticks = tickThreholdFunction == null ? defaultTickThreshold : tickThreholdFunction.apply(player, mark);
+                //ticks is basically a long (tick threshold) for primary and secondary
+                assert ticks.length == 2;
+                if (mark.getPrimaryTick() >= ticks[0]) {
+                    mark.setPrimaryMark(null);
+                    mark.resetPrimaryTick();
+                } else {
+                    mark.incrementPrimary();
+                }
+                if (mark.getSecondaryTick() >= ticks[1]) {
+                    mark.setPrimaryMark(null);
+                    mark.resetSecondaryTick();
+                } else {
+                    mark.incrementSecondary();
+                }
+            });
+        }
+
+        //TODO add listeners
+    }
+
+    /**
+     * Represents the rune BlessingOfTeleportation.
+     */
+    public static class BlessingOfTeleportation extends AbstractRune {
+
+        private static final BlessingOfTeleportation instance = new BlessingOfTeleportation();
+        private static final long ticks = Common.toTicks(8, TimeUnit.SECONDS);
+        private Collection<UUID> active = new HashSet<>();
+
+        private BlessingOfTeleportation() {
+            ShadowsRetreat.instance.setTickThresholdSupplier( //Basically checks if they have this ability active, if so increase duration of marks to 8 sec
+                    (UUID player, LocationMark mark) ->
+                            active.contains(player) ? new Long[]{ticks, ticks} : ShadowsRetreat.defaultTickThreshold);
+        }
+
+        public static BlessingOfTeleportation getInstance() {
+            return instance;
+        }
+
+        @Override
+        public void applyTo(Player player) {
+            clearFrom(player);
+            active.add(player.getUniqueId());
+        }
+
+        @Override
+        public void clearFrom(Player player) {
+            active.remove(player.getUniqueId());
+            Optional<LocationMark> optional = ShadowsRetreat.getInstance().getMarkFor(player.getUniqueId());
+            optional.ifPresent(LocationMark::clear);
+        }
+
+        @Override
+        public String getName() {
+            return "Blessing Of Teleportation";
+        }
+
+        @Override
+        public void tick() {
+            //This method does not actually need to tick since that is handled by the main ability
+        }
+
+        @Override
+        public int getContentVersion() {
+            return 0;
+        }
+
+        @Override
+        public DataContainer toContainer() {
+            return null;
+        }
+    }
+
+    /**
+     * Represents the rune HeartOfTheDryad
+     */
+    public static class HeartOfTheDryad extends AbstractRune {
 
         private static final HeartOfTheDryad instance = new HeartOfTheDryad();
-        private Collection<UUID> registered = new HashSet<>();
+        private Map<UUID, PotionEffect[]> registered = new HashMap<>();
         private Map<UUID, Long> currentActive = new HashMap<>();
         private Map<UUID, Long> cooldownMap = new HashMap<>();
 
@@ -130,32 +265,83 @@ public class Knavis extends AbstractChallenger implements Challenger {
 
         @Override
         public void applyTo(Player player) {
-            registered.add(player.getUniqueId());
+            clearFrom(player);
             currentActive.put(player.getUniqueId(), 0L);
             Optional<PotionEffectData> optional = player.getOrCreate(PotionEffectData.class);
             if (!optional.isPresent()) {
                 throw new IllegalStateException("Potion effect data could not be gathered for " + player.getUniqueId().toString());
             }
-            Optional<Integer> optionalInteger = player.get(Keys.COOLDOWN);
-            if (!optionalInteger.isPresent()) {
-                throw new IllegalStateException("Player cooldown data not found!");
-            }
-            int cooldown = optionalInteger.get();
-            cooldown = Math.toIntExact(Math.round(cooldown * 0.2D));
-            player.offer(Keys.COOLDOWN, cooldown);
+            PotionEffect entanglement = (PotionEffect) new BuffEffectEntangled(4, 1); //Safe cast as per forge's runtime changes
             PotionEffectData data = optional.get();
-            data.addElement(PotionEffect.builder()
+            PotionEffect[] effects = new PotionEffect[]{PotionEffect.builder()
+                    //Level 2 movement speed
                     .potionType(PotionEffectTypes.SPEED)
-                    .duration(4).amplifier(2).build());
+                    .duration(4).amplifier(2).build(), PotionEffect.builder()
+                    //20% Attack speed
+                    .potionType(PotionEffectTypes.HASTE)
+                    .duration(4).amplifier(2).build(),
+                    //Root / Entanglement
+                    entanglement};
+            for (PotionEffect effect : effects) {
+                data.addElement(effect);
+            }
             player.offer(data);
+            registered.put(player.getUniqueId(), effects);
+            Optional<ManagedMatch> optionalMatch = SimplePlayerMatchManager.INSTANCE.getMatchOf(player.getUniqueId());
+            optionalMatch.ifPresent(managedMatch -> {
+                GameEngine engine = managedMatch.getGameEngine();
+                Optional<? extends GamePlayer> optionalPlayer = engine.getGamePlayerOf(player.getUniqueId());
+                assert optionalPlayer.isPresent();
+                GamePlayer gamePlayer = optionalPlayer.get();
+                Collection<PotionEffect> buffs = gamePlayer.getBuffs();
+                buffs.add(effects[0]);
+                buffs.add(effects[1]); //Add SPEED and HASTE
+                buffs = gamePlayer.getDebuffs();
+                buffs.add(effects[2]); //Add Entanglement
+            });
         }
 
         @Override
         public void clearFrom(Player player) {
             currentActive.remove(player.getUniqueId());
             cooldownMap.remove(player.getUniqueId());
+            Optional<PotionEffectData> optional = player.getOrCreate(PotionEffectData.class);
+            if (!optional.isPresent()) {
+                throw new IllegalStateException("Potion effect data could not be gathered for " + player.getUniqueId().toString());
+            }
+            //Remove buffs from data
+            PotionEffectData data = optional.get();
+            PotionEffect[] effects = registered.get(player.getUniqueId());
+            if (effects.length != 3) {
+                throw new IllegalArgumentException("Player has a " + effects.length + " length array when it should be 3! Is the player even active?");
+            }
+            for (PotionEffect potionEffect : effects) {
+                data.remove(potionEffect);
+            }
+            player.offer(data);
+            registered.replace(player.getUniqueId(), new PotionEffect[0]);
+            //If player is in a match, update the GamePlayer object
+            Optional<ManagedMatch> optionalMatch = SimplePlayerMatchManager.INSTANCE.getMatchOf(player.getUniqueId());
+            optionalMatch.ifPresent(managedMatch -> {
+                GameEngine engine = managedMatch.getGameEngine();
+                Optional<? extends GamePlayer> optionalPlayer = engine.getGamePlayerOf(player.getUniqueId());
+                assert optionalPlayer.isPresent();
+                GamePlayer gamePlayer = optionalPlayer.get();
+                Collection<PotionEffect> buffs = gamePlayer.getBuffs();
+                Collection<PotionEffect> collection = Arrays.asList(effects);
+                buffs.removeAll(collection); //Remove from buffs.
+                buffs = gamePlayer.getDebuffs();
+                buffs.removeAll(collection); //Remove from debuffs
+            });
         }
 
+        /**
+         * Reflects whether the player can have this rune applied.
+         *
+         * @param uuid The UUID of the player.
+         * @return Returns whether the player can see noticable changes when the rune is "applied", checks
+         * for if the player already has it or if they are on cooldown.
+         */
         public boolean isEligible(UUID uuid) {
             return !currentActive.containsKey(uuid) && !cooldownMap.containsKey(uuid);
         }
@@ -171,7 +357,10 @@ public class Knavis extends AbstractChallenger implements Challenger {
         @Override
         public void tick() {
             cooldownMap.entrySet().removeIf(ChallengerUtils.mapTickPredicate(4L, TimeUnit.SECONDS, null));
-            currentActive.entrySet().removeIf(ChallengerUtils.mapTickPredicate(5L, TimeUnit.SECONDS, (UUID uuid) -> cooldownMap.put(uuid, 0L)));
+            currentActive.entrySet().removeIf(ChallengerUtils.mapTickPredicate(5L, TimeUnit.SECONDS, (UUID uuid) -> {
+                cooldownMap.put(uuid, 0L);
+                registered.compute(uuid, (unused, unused1) -> new PotionEffect[0]); //If player is no longer active, remove his effects
+            }));
         }
 
         @Override
@@ -197,7 +386,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
     /**
      * Represents Knavis' rune named "Chosen of the Earth"
      */
-    private static class ChosenOTEarth extends AbstractRune {
+    public static class ChosenOTEarth extends AbstractRune {
 
         private static final ChosenOTEarth instance = new ChosenOTEarth();
         private Map<UUID, Integer> stacks = new HashMap<>();

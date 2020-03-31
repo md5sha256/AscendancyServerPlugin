@@ -3,6 +3,7 @@ package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick;
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.Team;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.ManagedMatch;
+import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.engine.GameEngine;
 import ninja.leaping.configurate.ConfigurationNode;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Entity;
@@ -27,7 +28,7 @@ import java.util.*;
  */
 
 //TODO integrate draft-picking with the UI
-public class DraftPickMatchEngine {
+public class DraftPickMatchEngine implements GameEngine {
 
     private static Scoreboard scoreboard;
     private static Objective damagerObjective, victimObjective, relativeIDObjective;
@@ -60,7 +61,8 @@ public class DraftPickMatchEngine {
      * @param player The UUID of the player.
      * @return Returns a populated optional or an empty optional if the player is not in this match.
      */
-    Optional<AscendencyPlayer> wrapPlayer(UUID player) {
+    @Override
+    public Optional<AscendencyPlayer> getGamePlayerOf(UUID player) {
         for (AscendencyPlayer ap : ascendencyPlayers) {
             if (ap.uuidMatches(player)) {
                 return Optional.of(ap);
@@ -114,7 +116,7 @@ public class DraftPickMatchEngine {
     private void postInitPlayer(AscendencyPlayer ascendencyPlayer) {
         ManagedMatch match = matchReference.get();
         assert match != null;
-        UUID playerUID = ascendencyPlayer.getPlayer();
+        UUID playerUID = ascendencyPlayer.getPlayerUUID();
         Optional<Player> optionalPlayer = Sponge.getServer().getPlayer(playerUID);
         optionalPlayer.ifPresent((playerObj) -> {
             Team team = match.getTeamOf(playerUID);
@@ -129,7 +131,7 @@ public class DraftPickMatchEngine {
     }
 
     public void rejoin(UUID player) throws IllegalArgumentException {
-        AscendencyPlayer ascendencyPlayer = wrapPlayer(player).orElseThrow(() -> new IllegalArgumentException("Player is not in this match!"));
+        AscendencyPlayer ascendencyPlayer = getGamePlayerOf(player).orElseThrow(() -> new IllegalArgumentException("Player is not in this match!"));
         preInitPlayer(ascendencyPlayer);
     }
 
@@ -178,7 +180,7 @@ public class DraftPickMatchEngine {
         if (!(victim instanceof Player)) {
             return;
         }
-        Optional<AscendencyPlayer> optionalVictimObject = wrapPlayer(victim.getUniqueId());
+        Optional<AscendencyPlayer> optionalVictimObject = getGamePlayerOf(victim.getUniqueId());
         if (!optionalVictimObject.isPresent()) {
             return;
         }
@@ -188,7 +190,7 @@ public class DraftPickMatchEngine {
             if (player == victim) {
                 return;
             }
-            Optional<AscendencyPlayer> optional = wrapPlayer(player.getUniqueId()); //Player object
+            Optional<AscendencyPlayer> optional = getGamePlayerOf(player.getUniqueId()); //Player object
             if (!optional.isPresent()) {
                 continue;
             }

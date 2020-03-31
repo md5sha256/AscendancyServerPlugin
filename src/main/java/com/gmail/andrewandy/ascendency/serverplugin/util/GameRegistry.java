@@ -1,12 +1,12 @@
-package com.gmail.andrewandy.ascendency.serverplugin;
+package com.gmail.andrewandy.ascendency.serverplugin.util;
 
 import com.gmail.andrewandy.ascendency.lib.AscendencyPacket;
 import com.gmail.andrewandy.ascendency.lib.game.AscendencyChampions;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataMarkerPacket;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataPacket;
+import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
 import com.gmail.andrewandy.ascendency.serverplugin.game.challenger.Challenger;
 import com.gmail.andrewandy.ascendency.serverplugin.io.SpongeAscendencyPacketHandler;
-import com.gmail.andrewandy.ascendency.serverplugin.util.Common;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;

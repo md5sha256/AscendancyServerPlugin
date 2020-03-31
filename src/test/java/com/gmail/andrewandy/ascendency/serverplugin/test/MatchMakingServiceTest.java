@@ -4,9 +4,6 @@ import com.gmail.andrewandy.ascendency.lib.testutils.MockPlayer;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.MatchMakingService;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.Team;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick.DraftPickMatch;
-import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.SimplePlayerMatchManager;
-import org.junit.jupiter.api.Assertions;
-import org.spongepowered.api.entity.living.player.Player;
 
 import java.util.Collection;
 import java.util.HashSet;

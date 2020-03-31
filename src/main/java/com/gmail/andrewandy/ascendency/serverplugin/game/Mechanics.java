@@ -6,7 +6,7 @@ public class Mechanics {
 
     public enum DamageType {
 
-        ATTACK_DAMAGE, ABILITY_POWER;
+        ATTACK_DAMAGE, ABILITY_POWER, TRUE;
 
 
         DamageType() {

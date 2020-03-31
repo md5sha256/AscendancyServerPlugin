@@ -11,9 +11,10 @@ public class AllyApplyEffectEvent extends GameEvent {
 
     /**
      * Construct a new ally apply effect event/
+     *
      * @param player The ally.
      * @param target The player who now has new effects.
-     * @param team The team of both players.
+     * @param team   The team of both players.
      */
     public AllyApplyEffectEvent(Player player, Player target, Team team) {
         super(player, team);
