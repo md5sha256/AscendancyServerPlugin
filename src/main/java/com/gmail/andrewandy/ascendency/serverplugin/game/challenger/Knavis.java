@@ -4,13 +4,18 @@ import com.gmail.andrewandy.ascendency.lib.game.data.IChampionData;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataImpl;
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
 import com.gmail.andrewandy.ascendency.serverplugin.game.ability.Ability;
+import com.gmail.andrewandy.ascendency.serverplugin.game.event.AllyApplyEffectEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.AbstractRune;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.AscendencyServerEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.util.Common;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.data.manipulator.mutable.entity.HealthData;
+import org.spongepowered.api.effect.potion.PotionEffect;
+import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -109,13 +114,92 @@ public class Knavis extends AbstractChallenger implements Challenger {
         }
     }
 
+    private static class HeartOfTheDryad extends AbstractRune {
+
+        private static final HeartOfTheDryad instance = new HeartOfTheDryad();
+        private Collection<UUID> registered = new HashSet<>();
+        private Map<UUID, Long> currentActive = new HashMap<>();
+        private Map<UUID, Long> cooldownMap = new HashMap<>();
+
+        private HeartOfTheDryad() {
+        }
+
+        public static HeartOfTheDryad getInstance() {
+            return instance;
+        }
+
+        @Override
+        public void applyTo(Player player) {
+            registered.add(player.getUniqueId());
+            currentActive.put(player.getUniqueId(), 0L);
+            Optional<PotionEffectData> optional = player.getOrCreate(PotionEffectData.class);
+            if (!optional.isPresent()) {
+                throw new IllegalStateException("Potion effect data could not be gathered for " + player.getUniqueId().toString());
+            }
+            Optional<Integer> optionalInteger = player.get(Keys.COOLDOWN);
+            if (!optionalInteger.isPresent()) {
+                throw new IllegalStateException("Player cooldown data not found!");
+            }
+            int cooldown = optionalInteger.get();
+            cooldown = Math.toIntExact(Math.round(cooldown * 0.2D));
+            player.offer(Keys.COOLDOWN, cooldown);
+            PotionEffectData data = optional.get();
+            data.addElement(PotionEffect.builder()
+                    .potionType(PotionEffectTypes.SPEED)
+                    .duration(4).amplifier(2).build());
+            player.offer(data);
+        }
+
+        @Override
+        public void clearFrom(Player player) {
+            currentActive.remove(player.getUniqueId());
+            cooldownMap.remove(player.getUniqueId());
+        }
+
+        public boolean isEligible(UUID uuid) {
+            return !currentActive.containsKey(uuid) && !cooldownMap.containsKey(uuid);
+        }
+
+        @Override
+        public String getName() {
+            return "Heart Of The Dryad";
+        }
+
+        /**
+         * Updates the cooldowns and actives.
+         */
+        @Override
+        public void tick() {
+            cooldownMap.entrySet().removeIf(ChallengerUtils.mapTickPredicate(4L, TimeUnit.SECONDS, null));
+            currentActive.entrySet().removeIf(ChallengerUtils.mapTickPredicate(5L, TimeUnit.SECONDS, (UUID uuid) -> cooldownMap.put(uuid, 0L)));
+        }
+
+        @Override
+        public int getContentVersion() {
+            return 0;
+        }
+
+        @Override
+        public DataContainer toContainer() {
+            return null;
+        }
+
+        @Listener
+        public void onAllyUseBuff(AllyApplyEffectEvent event) {
+            Player target = event.getTarget();
+            if (!isEligible(target.getUniqueId())) {
+                return;
+            }
+            applyTo(target);
+        }
+    }
+
     /**
      * Represents Knavis' rune named "Chosen of the Earth"
      */
     private static class ChosenOTEarth extends AbstractRune {
 
         private static final ChosenOTEarth instance = new ChosenOTEarth();
-        private UUID uuid = UUID.randomUUID();
         private Map<UUID, Integer> stacks = new HashMap<>();
         private Map<UUID, Long> tickHistory = new HashMap<>();
 
@@ -164,10 +248,10 @@ public class Knavis extends AbstractChallenger implements Challenger {
             }
             Player playerObj = optionalPlayer.get();
             tickHistory.replace(playerObj.getUniqueId(), 0L);
-            stacks.compute(uuid, ((UUID player, Integer stack) -> {
+            stacks.compute(playerObj.getUniqueId(), ((UUID player, Integer stack) -> {
                 int stackVal = stack == null ? 0 : stack; //Unboxing here may throw nullpointer.
                 double health = 3;
-                for (int index = 1; index < stackVal;) {
+                for (int index = 1; index < stackVal; ) {
                     health += index++;
                 }
                 Common.addHealth(playerObj, health); //Set the health of the player based on stacks.
@@ -190,24 +274,12 @@ public class Knavis extends AbstractChallenger implements Challenger {
             //TODO
         }
 
-        @Override
-        public UUID getUniqueID() {
-            return uuid;
-        }
-
         /**
          * Updates the stack history.
          */
         @Override
         public void tick() {
-            tickHistory.entrySet().removeIf((Map.Entry<UUID, Long> entry) -> {
-                entry.setValue(entry.getValue() + 1); //Increment tick count
-                if (entry.getValue() >= Common.toTicks(6, TimeUnit.SECONDS)) {
-                    stacks.remove(entry.getKey()); //Remove from stack history
-                    return true;
-                }
-                return false;
-            }); //Clear if greater than the number of ticks in 6 seconds.
+            tickHistory.entrySet().removeIf(ChallengerUtils.mapTickPredicate(6L, TimeUnit.SECONDS, stacks::remove));
         }
     }
 }
