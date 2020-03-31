@@ -66,6 +66,11 @@ public class Knavis extends AbstractChallenger implements Challenger {
         }
 
         @Override
+        public boolean isActive()  {
+            return true;
+        }
+
+        @Override
         public String getName() {
             return "LivingGift";
         }
