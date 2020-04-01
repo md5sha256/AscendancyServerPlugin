@@ -1,6 +1,7 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick;
 
 import com.gmail.andrewandy.ascendency.serverplugin.game.challenger.Challenger;
+import com.gmail.andrewandy.ascendency.serverplugin.game.rune.Rune;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.engine.GamePlayer;
 import org.spongepowered.api.effect.potion.PotionEffect;
 
@@ -18,7 +19,8 @@ import java.util.UUID;
 public class AscendencyPlayer implements GamePlayer {
 
     int relativeID;
-    Collection<PotionEffect> buffs = new HashSet<>(), debuffs = new HashSet<>();
+    Collection<Rune> runes = new HashSet<>();
+    Collection<PotionEffect> statusEffects = new HashSet<>();
     Challenger challenger;
     private UUID player;
 
@@ -27,15 +29,25 @@ public class AscendencyPlayer implements GamePlayer {
         this.relativeID = relativeID;
     }
 
-
     @Override
-    public Collection<PotionEffect> getBuffs() {
-        return buffs;
+    public Collection<Rune> getRunes() {
+        return runes;
     }
 
     @Override
-    public Collection<PotionEffect> getDebuffs() {
-        return debuffs;
+    public Collection<PotionEffect> getStatusEffects() {
+        return statusEffects;
+    }
+
+    @Override
+    public void addStatusEffect(PotionEffect effect) {
+        removeStatusEffect(effect);
+        statusEffects.add(effect);
+    }
+
+    @Override
+    public void removeStatusEffect(PotionEffect effect) {
+        statusEffects.remove(effect);
     }
 
     /**
@@ -64,8 +76,7 @@ public class AscendencyPlayer implements GamePlayer {
         AscendencyPlayer that = (AscendencyPlayer) o;
 
         if (relativeID != that.relativeID) return false;
-        if (!Objects.equals(buffs, that.buffs)) return false;
-        if (!Objects.equals(debuffs, that.debuffs)) return false;
+        if (!Objects.equals(runes, that.runes)) return false;
         if (!Objects.equals(challenger, that.challenger)) return false;
         return Objects.equals(player, that.player);
     }
@@ -73,8 +84,7 @@ public class AscendencyPlayer implements GamePlayer {
     @Override
     public int hashCode() {
         int result = relativeID;
-        result = 31 * result + (buffs != null ? buffs.hashCode() : 0);
-        result = 31 * result + (debuffs != null ? debuffs.hashCode() : 0);
+        result = 31 * result + (runes != null ? runes.hashCode() : 0);
         result = 31 * result + (challenger != null ? challenger.hashCode() : 0);
         result = 31 * result + (player != null ? player.hashCode() : 0);
         return result;

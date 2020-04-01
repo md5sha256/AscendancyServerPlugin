@@ -213,7 +213,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
         //TODO add listeners
 
         @Listener
-        public void onItemUse(ChangeInventoryEvent.Held event) {
+        public void onHotbarChange(ChangeInventoryEvent.Held event) {
             Cause cause = event.getCause();
             Collection<Player> livings = cause.allOf(Player.class);
             if (livings.size() < 1) {
