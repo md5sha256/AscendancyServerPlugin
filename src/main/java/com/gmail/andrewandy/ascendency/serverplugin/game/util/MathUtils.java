@@ -43,21 +43,20 @@ public class MathUtils {
         if (radius == 0) {
             throw new UnsupportedOperationException();
         }
-        //Eq = integral of pi (z2 = r2 - x2) = pi (x r2 + x3/3)
         int x = centre.getBlockX();
         int y = centre.getBlockY();
         int z = centre.getBlockZ();
-        int last = Integer.MAX_VALUE;
+        int lastX = Integer.MAX_VALUE;
         Collection<Location<World>> locations = new HashSet<>();
-        for (int i = x; last != x; i++) {
+        for (int xCoord = x; lastX != x; xCoord++) {
             int lastJ = Integer.MAX_VALUE;
-            double zCoord = Math.pow(radius, 2) - Math.pow(z, 2); //Basically taking the radius minus diff between centre and outer ring.
+            double zCoord = radius - (Math.pow(radius, 2) - Math.pow(z, 2)); //Basically taking the radius minus diff between centre and outer ring.
             for (int j = y; lastJ != y; j++) {
                 double yCoord = radius - (zCoord - z);
-                locations.add(new Location<>(centre.getExtent(), i, yCoord, zCoord));
+                locations.add(new Location<>(centre.getExtent(), xCoord, yCoord, zCoord));
                 lastJ = j;
             }
-            last = i;
+            lastX = xCoord;
         }
         return locations;
     }
