@@ -1,7 +1,7 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.engine;
 
-import com.gmail.andrewandy.ascendency.serverplugin.game.challenger.Challenger;
-import com.gmail.andrewandy.ascendency.serverplugin.game.rune.Rune;
+import com.gmail.andrewandy.ascendency.serverplugin.api.challenger.Challenger;
+import com.gmail.andrewandy.ascendency.serverplugin.api.rune.Rune;
 import org.spongepowered.api.effect.potion.PotionEffect;
 
 import java.util.Collection;

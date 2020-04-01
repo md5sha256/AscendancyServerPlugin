@@ -1,4 +1,4 @@
-package com.gmail.andrewandy.ascendency.serverplugin.game.ability;
+package com.gmail.andrewandy.ascendency.serverplugin.api.ability;
 
 public abstract class AbstractAbility implements Ability {
 

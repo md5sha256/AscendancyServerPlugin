@@ -3,11 +3,13 @@ package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
 import com.gmail.andrewandy.ascendency.lib.game.data.IChampionData;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataImpl;
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
-import com.gmail.andrewandy.ascendency.serverplugin.game.ability.Ability;
-import com.gmail.andrewandy.ascendency.serverplugin.game.event.AllyApplyEffectEvent;
-import com.gmail.andrewandy.ascendency.serverplugin.game.rune.AbstractRune;
-import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
-import com.gmail.andrewandy.ascendency.serverplugin.game.rune.Rune;
+import com.gmail.andrewandy.ascendency.serverplugin.api.challenger.AbstractChallenger;
+import com.gmail.andrewandy.ascendency.serverplugin.api.challenger.Challenger;
+import com.gmail.andrewandy.ascendency.serverplugin.api.challenger.ChallengerUtils;
+import com.gmail.andrewandy.ascendency.serverplugin.api.ability.Ability;
+import com.gmail.andrewandy.ascendency.serverplugin.api.rune.AbstractRune;
+import com.gmail.andrewandy.ascendency.serverplugin.api.rune.PlayerSpecificRune;
+import com.gmail.andrewandy.ascendency.serverplugin.api.rune.Rune;
 import com.gmail.andrewandy.ascendency.serverplugin.game.util.LocationMark;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.AscendencyServerEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.ManagedMatch;
@@ -22,10 +24,12 @@ import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.data.manipulator.mutable.entity.HealthData;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.potion.PotionEffect;
+import org.spongepowered.api.effect.potion.PotionEffectType;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.entity.ChangeEntityPotionEffectEvent;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.item.inventory.Inventory;
@@ -427,12 +431,18 @@ public class Knavis extends AbstractChallenger implements Challenger {
         }
 
         @Listener
-        public void onAllyUseBuff(AllyApplyEffectEvent event) {
-            Player target = event.getTarget();
-            if (!isEligible(target.getUniqueId())) {
+        public void onPotionApplied(ChangeEntityPotionEffectEvent.Gain event) {
+            //Check if the entity can have its this rune applied.
+            if (!isEligible(event.getTargetEntity().getUniqueId())) {
                 return;
             }
-            applyTo(target);
+            PotionEffectType effect = event.getPotionEffect().getType();
+
+            String name = effect.getName().toLowerCase();
+            if (name.contains("fury")  || effect == PotionEffectTypes.STRENGTH || effect == PotionEffectTypes.RESISTANCE) {
+                assert event.getTargetEntity() instanceof Player;
+                applyTo((Player) event.getTargetEntity());
+            }
         }
     }
 

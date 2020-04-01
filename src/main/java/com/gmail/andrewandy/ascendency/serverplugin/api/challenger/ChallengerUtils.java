@@ -1,4 +1,4 @@
-package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
+package com.gmail.andrewandy.ascendency.serverplugin.api.challenger;
 
 import com.gmail.andrewandy.ascendency.serverplugin.util.Common;
 

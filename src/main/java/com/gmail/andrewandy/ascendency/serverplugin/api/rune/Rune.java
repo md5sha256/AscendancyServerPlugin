@@ -1,4 +1,4 @@
-package com.gmail.andrewandy.ascendency.serverplugin.game.rune;
+package com.gmail.andrewandy.ascendency.serverplugin.api.rune;
 
 import com.gmail.andrewandy.ascendency.serverplugin.util.game.Tickable;
 import org.spongepowered.api.data.DataSerializable;
