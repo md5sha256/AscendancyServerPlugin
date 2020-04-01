@@ -1,7 +1,5 @@
 package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
 
-import am2.buffs.BuffEffectEntangled;
-import com.flowpowered.math.vector.Vector3d;
 import com.gmail.andrewandy.ascendency.lib.game.data.IChampionData;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataImpl;
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
@@ -19,27 +17,20 @@ import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.engine.Gam
 import com.gmail.andrewandy.ascendency.serverplugin.util.Common;
 import com.gmail.andrewandy.ascendency.serverplugin.util.game.Tickable;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.block.tileentity.Sign;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.data.manipulator.mutable.entity.HealthData;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
-import org.spongepowered.api.event.entity.DestructEntityEvent;
-import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
 
 import java.io.File;
 import java.io.IOException;
@@ -222,33 +213,6 @@ public class Knavis extends AbstractChallenger implements Challenger {
         //TODO add listeners
 
         @Listener
-        public void onSignClick(InteractEntityEvent.Secondary event) { //Right Click
-            Optional<Vector3d> vector = event.getInteractionPoint();
-            if (!vector.isPresent()) {
-                return;
-            }
-            Entity entity = event.getTargetEntity();
-            if (!(entity instanceof Player)) {
-                return;
-            }
-            World world = entity.getLocation().getExtent();
-            Location<World> location = new Location<>(world, vector.get());
-            BlockState block = location.getBlock();
-            if (!(block instanceof Sign)) {
-                return;
-            }
-            Sign sign = (Sign) block;
-            if (!sign.getSignData().equals(null)) { //Check sign data
-                if (dataMap.containsKey(entity.getUniqueId())) {
-                    return;
-                }
-                dataMap.put(entity.getUniqueId(), new LocationMark());
-            }// Some condition -- TODO
-
-
-        }
-
-        @Listener
         public void onItemUse(ChangeInventoryEvent.Held event) {
             Cause cause = event.getCause();
             Collection<Player> livings = cause.allOf(Player.class);
@@ -366,7 +330,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
             if (!optional.isPresent()) {
                 throw new IllegalStateException("Potion effect data could not be gathered for " + player.getUniqueId().toString());
             }
-            PotionEffect entanglement = (PotionEffect) (Object) new BuffEffectEntangled(4, 1); //Safe cast as per forge's runtime changes
+
             PotionEffectData data = optional.get();
             PotionEffect[] effects = new PotionEffect[]{PotionEffect.builder()
                     //Level 2 movement speed
@@ -374,9 +338,8 @@ public class Knavis extends AbstractChallenger implements Challenger {
                     .duration(4).amplifier(2).build(), PotionEffect.builder()
                     //20% Attack speed
                     .potionType(PotionEffectTypes.HASTE)
-                    .duration(4).amplifier(2).build(),
-                    //Root / Entanglement
-                    entanglement};
+                    .duration(4).amplifier(2).build()};
+            //Root / Entanglement
             for (PotionEffect effect : effects) {
                 data.addElement(effect);
             }
@@ -405,8 +368,8 @@ public class Knavis extends AbstractChallenger implements Challenger {
             //Remove buffs from data
             PotionEffectData data = optional.get();
             PotionEffect[] effects = registered.get(player.getUniqueId());
-            if (effects.length != 3) {
-                throw new IllegalArgumentException("Player has a " + effects.length + " length array when it should be 3! Is the player even active?");
+            if (effects.length != 2) {
+                return;
             }
             for (PotionEffect potionEffect : effects) {
                 data.remove(potionEffect);
@@ -533,24 +496,9 @@ public class Knavis extends AbstractChallenger implements Challenger {
                 for (int index = 1; index < stackVal; ) {
                     health += index++;
                 }
-                Common.addHealth(playerObj, health); //Set the health of the player based on stacks.
+                Common.addHealth(playerObj, health - 3); //Sets the total health to a value between 3 and 7 (adds on to LivingGift)
                 return stackVal == 4 ? stackVal : stackVal + 1; //If stack = 4, then max has been reached, therefore its 4 or stack + 1;
             }));
-        }
-
-        @Listener
-        public void onDeath(DestructEntityEvent.Death event) {
-            Entity entity = event.getTargetEntity();
-            if (!(entity instanceof Player)) {
-                return;
-            }
-            Collection<Player> players = event.getCause().allOf(Player.class);
-            for (Player player : players) {
-                if (!tickHistory.containsKey(player.getUniqueId())) {
-                    continue;
-                }
-            }
-            //TODO
         }
 
         /**

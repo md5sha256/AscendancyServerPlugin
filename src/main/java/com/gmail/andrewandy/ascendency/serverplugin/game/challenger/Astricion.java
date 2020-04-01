@@ -1,10 +1,12 @@
 package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
 
+import am2.buffs.BuffEffectEntangled;
 import com.gmail.andrewandy.ascendency.lib.game.data.IChampionData;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataImpl;
 import com.gmail.andrewandy.ascendency.serverplugin.game.ability.Ability;
 import com.gmail.andrewandy.ascendency.serverplugin.game.ability.AbstractAbility;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
+import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -22,7 +24,7 @@ public class Astricion extends AbstractChallenger {
 
     private Astricion() {
         super("Astricion",
-                new Ability[0],
+                new Ability[]{Suppression.instance},
                 new PlayerSpecificRune[0],
                 Season1Challengers.getLoreOf("Astricion"));
     }
@@ -42,10 +44,15 @@ public class Astricion extends AbstractChallenger {
 
     private static class Suppression extends AbstractAbility {
 
+        private static final Suppression instance = new Suppression();
         private Collection<UUID> active = new HashSet<>();
 
         private Suppression() {
             super("Suppression", true);
+        }
+
+        public static Suppression getInstance() {
+            return instance;
         }
 
         public void activateAs(UUID player) {
@@ -60,6 +67,7 @@ public class Astricion extends AbstractChallenger {
             if (!(entity instanceof Player) || !active.contains(entity.getUniqueId())) {
                 return;
             }
+            PotionEffect entanglement = (PotionEffect) (Object) new BuffEffectEntangled(4, 1); //Safe cast as per forge's runtime changes
             event.setBaseDamage(calculateIncomingDamage(event.getBaseDamage())); //Modifies the base damage directly
         }
 
