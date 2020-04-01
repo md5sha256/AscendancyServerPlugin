@@ -138,7 +138,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
         private static final ShadowsRetreat instance = new ShadowsRetreat();
         private UUID uuid = UUID.randomUUID();
         private Map<UUID, LocationMark> dataMap = new HashMap<>();
-        private BiFunction<UUID, LocationMark, Long[]> tickThreholdFunction;
+        private BiFunction<UUID, LocationMark, Long[]> tickThresholdFunction;
         private BiConsumer<Player, Integer> onMark;
 
         private ShadowsRetreat() {
@@ -148,8 +148,8 @@ public class Knavis extends AbstractChallenger implements Challenger {
             return instance;
         }
 
-        public void setTickThresholdSupplier(BiFunction<UUID, LocationMark, Long[]> tickThreholdFunction) {
-            this.tickThreholdFunction = tickThreholdFunction;
+        public void setTickThresholdSupplier(BiFunction<UUID, LocationMark, Long[]> tickThresholdFunction) {
+            this.tickThresholdFunction = tickThresholdFunction;
         }
 
         public void setOnMark(BiConsumer<Player, Integer> onMark) {
@@ -186,7 +186,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
         @Override
         public void tick() {
             dataMap.forEach((UUID player, LocationMark mark) -> {
-                Long[] ticks = tickThreholdFunction == null ? defaultTickThreshold : tickThreholdFunction.apply(player, mark);
+                Long[] ticks = tickThresholdFunction == null ? defaultTickThreshold : tickThresholdFunction.apply(player, mark);
                 //ticks is basically a long (tick threshold) for primary and secondary
                 assert ticks.length == 2;
                 if (mark.getPrimaryTick() >= ticks[0]) {
