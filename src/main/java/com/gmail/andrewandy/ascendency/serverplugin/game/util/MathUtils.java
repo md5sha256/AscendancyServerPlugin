@@ -50,9 +50,9 @@ public class MathUtils {
         Collection<Location<World>> locations = new HashSet<>();
         for (int xCoord = x; lastX != x; xCoord++) {
             int lastJ = Integer.MAX_VALUE;
-            double zCoord = radius - (Math.pow(radius, 2) - Math.pow(z, 2)); //Basically taking the radius minus diff between centre and outer ring.
+            double zCoord = Math.pow(radius, 2) - Math.pow(z, 2);
             for (int j = y; lastJ != y; j++) {
-                double yCoord = radius - (zCoord - z);
+                double yCoord = radius - (zCoord - z); //Basically taking the radius minus diff between centre and outer ring.
                 locations.add(new Location<>(centre.getExtent(), xCoord, yCoord, zCoord));
                 lastJ = j;
             }
