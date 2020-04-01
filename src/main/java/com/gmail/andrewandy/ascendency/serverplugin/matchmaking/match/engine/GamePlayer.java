@@ -1,7 +1,7 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.engine;
 
 import com.gmail.andrewandy.ascendency.serverplugin.game.challenger.Challenger;
-import org.spongepowered.api.effect.potion.PotionEffect;
+import com.gmail.andrewandy.ascendency.serverplugin.game.rune.Rune;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -10,9 +10,7 @@ public interface GamePlayer {
 
     UUID getPlayerUUID();
 
-    Collection<PotionEffect> getBuffs();
-
-    Collection<PotionEffect> getDebuffs();
+    Collection<Rune> getRunes();
 
     Challenger getChallenger();
 

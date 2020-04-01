@@ -1,6 +1,7 @@
 package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
 
 import am2.buffs.BuffEffectEntangled;
+import com.flowpowered.math.vector.Vector3d;
 import com.gmail.andrewandy.ascendency.lib.game.data.IChampionData;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataImpl;
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
@@ -8,6 +9,7 @@ import com.gmail.andrewandy.ascendency.serverplugin.game.ability.Ability;
 import com.gmail.andrewandy.ascendency.serverplugin.game.event.AllyApplyEffectEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.AbstractRune;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
+import com.gmail.andrewandy.ascendency.serverplugin.game.rune.Rune;
 import com.gmail.andrewandy.ascendency.serverplugin.game.util.LocationMark;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.AscendencyServerEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.ManagedMatch;
@@ -17,9 +19,12 @@ import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.engine.Gam
 import com.gmail.andrewandy.ascendency.serverplugin.util.Common;
 import com.gmail.andrewandy.ascendency.serverplugin.util.game.Tickable;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.tileentity.Sign;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.data.manipulator.mutable.entity.HealthData;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.Entity;
@@ -28,11 +33,19 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.property.SlotIndex;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 /**
@@ -131,6 +144,8 @@ public class Knavis extends AbstractChallenger implements Challenger {
         private UUID uuid = UUID.randomUUID();
         private Map<UUID, LocationMark> dataMap = new HashMap<>();
         private BiFunction<UUID, LocationMark, Long[]> tickThreholdFunction;
+        private BiConsumer<Player, Integer> onMark;
+
         private ShadowsRetreat() {
         }
 
@@ -140,6 +155,10 @@ public class Knavis extends AbstractChallenger implements Challenger {
 
         public void setTickThresholdSupplier(BiFunction<UUID, LocationMark, Long[]> tickThreholdFunction) {
             this.tickThreholdFunction = tickThreholdFunction;
+        }
+
+        public void setOnMark(BiConsumer<Player, Integer> onMark) {
+            this.onMark = onMark;
         }
 
         public Optional<LocationMark> getMarkFor(UUID player) {
@@ -190,7 +209,73 @@ public class Knavis extends AbstractChallenger implements Challenger {
             });
         }
 
+
+        private void mark(Player player) {
+            if (!dataMap.containsKey(player.getUniqueId())) {
+                throw new IllegalArgumentException("Player does not have this ability!");
+            }
+            LocationMark mark = dataMap.get(player.getUniqueId());
+            mark.setPrimaryMark(player.getLocation());
+            mark.resetPrimaryTick();
+        }
+
         //TODO add listeners
+
+        @Listener
+        public void onSignClick(InteractEntityEvent.Secondary event) { //Right Click
+            Optional<Vector3d> vector = event.getInteractionPoint();
+            if (!vector.isPresent()) {
+                return;
+            }
+            Entity entity = event.getTargetEntity();
+            if (!(entity instanceof Player)) {
+                return;
+            }
+            World world = entity.getLocation().getExtent();
+            Location<World> location = new Location<>(world, vector.get());
+            BlockState block = location.getBlock();
+            if (!(block instanceof Sign)) {
+                return;
+            }
+            Sign sign = (Sign) block;
+            if (!sign.getSignData().equals(null)) { //Check sign data
+                if (dataMap.containsKey(entity.getUniqueId())) {
+                    return;
+                }
+                dataMap.put(entity.getUniqueId(), new LocationMark());
+            }// Some condition -- TODO
+
+
+        }
+
+        @Listener
+        public void onItemUse(ChangeInventoryEvent.Held event) {
+            Cause cause = event.getCause();
+            Collection<Player> livings = cause.allOf(Player.class);
+            if (livings.size() < 1) {
+                return;
+            }
+            Player player = livings.iterator().next();
+            if (!dataMap.containsKey(player.getUniqueId())) {
+                return;
+            }
+            Inventory inventory = player.getInventory();
+            Optional<ItemStack> clicked = player.getItemInHand(HandTypes.MAIN_HAND);
+            clicked.ifPresent((stack) -> {
+                Optional<SlotIndex> index = inventory.getProperty(SlotIndex.class, SlotIndex.of(stack));
+                index.ifPresent((SlotIndex slotIndex) -> {
+                    assert slotIndex.getValue() != null;
+                    if (onMark != null) {
+                        onMark.accept(player, slotIndex.getValue());
+                    }
+                    if (slotIndex.getValue() != 2 || slotIndex.getValue() != 1) {
+                        return;
+                    }
+                    mark(player);
+                });
+
+            });
+        }
     }
 
     /**
@@ -206,6 +291,16 @@ public class Knavis extends AbstractChallenger implements Challenger {
             ShadowsRetreat.instance.setTickThresholdSupplier( //Basically checks if they have this ability active, if so increase duration of marks to 8 sec
                     (UUID player, LocationMark mark) ->
                             active.contains(player) ? new Long[]{ticks, ticks} : ShadowsRetreat.defaultTickThreshold);
+            ShadowsRetreat.instance.setOnMark((Player player, Integer slot) -> {
+                assert slot != null;
+                if (slot == 2) { //Don't need to care about 1 since it will be handled by Shadow's retreat.
+                    Optional<LocationMark> mark = ShadowsRetreat.instance.getMarkFor(player.getUniqueId());
+                    assert mark.isPresent();
+                    LocationMark locationMark = mark.get();
+                    locationMark.setSecondaryMark(player.getLocation());
+                    locationMark.resetSecondaryTick();
+                }
+            });
         }
 
         public static BlessingOfTeleportation getInstance() {
@@ -293,11 +388,9 @@ public class Knavis extends AbstractChallenger implements Challenger {
                 Optional<? extends GamePlayer> optionalPlayer = engine.getGamePlayerOf(player.getUniqueId());
                 assert optionalPlayer.isPresent();
                 GamePlayer gamePlayer = optionalPlayer.get();
-                Collection<PotionEffect> buffs = gamePlayer.getBuffs();
-                buffs.add(effects[0]);
-                buffs.add(effects[1]); //Add SPEED and HASTE
-                buffs = gamePlayer.getDebuffs();
-                buffs.add(effects[2]); //Add Entanglement
+                Collection<Rune> runes = gamePlayer.getRunes();
+                runes.remove(this);
+                runes.add(this);
             });
         }
 
@@ -327,11 +420,8 @@ public class Knavis extends AbstractChallenger implements Challenger {
                 Optional<? extends GamePlayer> optionalPlayer = engine.getGamePlayerOf(player.getUniqueId());
                 assert optionalPlayer.isPresent();
                 GamePlayer gamePlayer = optionalPlayer.get();
-                Collection<PotionEffect> buffs = gamePlayer.getBuffs();
-                Collection<PotionEffect> collection = Arrays.asList(effects);
-                buffs.removeAll(collection); //Remove from buffs.
-                buffs = gamePlayer.getDebuffs();
-                buffs.removeAll(collection); //Remove from debuffs
+                Collection<Rune> runes = gamePlayer.getRunes();
+                runes.remove(this);
             });
         }
 
