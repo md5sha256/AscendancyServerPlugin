@@ -1,8 +1,8 @@
-package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
+package com.gmail.andrewandy.ascendency.serverplugin.api.challenger;
 
 import com.gmail.andrewandy.ascendency.lib.game.data.IChampionData;
-import com.gmail.andrewandy.ascendency.serverplugin.game.ability.Ability;
-import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
+import com.gmail.andrewandy.ascendency.serverplugin.api.ability.Ability;
+import com.gmail.andrewandy.ascendency.serverplugin.api.rune.PlayerSpecificRune;
 
 import java.util.List;
 

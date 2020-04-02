@@ -1,4 +1,4 @@
-package com.gmail.andrewandy.ascendency.serverplugin.game.event;
+package com.gmail.andrewandy.ascendency.serverplugin.api.event;
 
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.AscendencyServerEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.Team;

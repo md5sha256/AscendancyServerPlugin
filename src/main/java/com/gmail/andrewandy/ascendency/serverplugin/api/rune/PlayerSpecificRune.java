@@ -1,4 +1,4 @@
-package com.gmail.andrewandy.ascendency.serverplugin.game.rune;
+package com.gmail.andrewandy.ascendency.serverplugin.api.rune;
 
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;

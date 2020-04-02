@@ -1,7 +1,7 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.draftpick;
 
-import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
-import com.gmail.andrewandy.ascendency.serverplugin.game.rune.Rune;
+import com.gmail.andrewandy.ascendency.serverplugin.api.rune.PlayerSpecificRune;
+import com.gmail.andrewandy.ascendency.serverplugin.api.rune.Rune;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.Team;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.ManagedMatch;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.PlayerMatchManager;

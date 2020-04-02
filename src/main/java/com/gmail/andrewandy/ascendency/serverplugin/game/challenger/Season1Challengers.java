@@ -1,6 +1,7 @@
 package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
 
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
+import com.gmail.andrewandy.ascendency.serverplugin.api.challenger.Challenger;
 import ninja.leaping.configurate.ConfigurationNode;
 
 import java.util.List;

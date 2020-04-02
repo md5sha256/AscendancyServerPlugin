@@ -1,6 +1,6 @@
-package com.gmail.andrewandy.ascendency.serverplugin.game;
+package com.gmail.andrewandy.ascendency.serverplugin.api;
 
-import com.gmail.andrewandy.ascendency.serverplugin.game.challenger.Challenger;
+import com.gmail.andrewandy.ascendency.serverplugin.api.challenger.Challenger;
 
 public class Mechanics {
 

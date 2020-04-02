@@ -1,6 +1,7 @@
 package com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match;
 
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.Team;
+import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.engine.GamePlayer;
 
 import java.util.*;
 
@@ -193,6 +194,15 @@ public interface PlayerMatchManager {
             }
         }
         return true;
+    }
+
+
+    default Optional<? extends GamePlayer> getGamePlayerOf(UUID player) {
+        Optional<ManagedMatch> optionalMatch = getMatchOf(player);
+        if (!optionalMatch.isPresent()) {
+            return Optional.empty();
+        }
+        return optionalMatch.get().getGameEngine().getGamePlayerOf(player);
     }
 
 }

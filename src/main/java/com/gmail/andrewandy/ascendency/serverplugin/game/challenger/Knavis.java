@@ -3,11 +3,13 @@ package com.gmail.andrewandy.ascendency.serverplugin.game.challenger;
 import com.gmail.andrewandy.ascendency.lib.game.data.IChampionData;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataImpl;
 import com.gmail.andrewandy.ascendency.serverplugin.AscendencyServerPlugin;
-import com.gmail.andrewandy.ascendency.serverplugin.game.ability.Ability;
-import com.gmail.andrewandy.ascendency.serverplugin.game.event.AllyApplyEffectEvent;
-import com.gmail.andrewandy.ascendency.serverplugin.game.rune.AbstractRune;
-import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
-import com.gmail.andrewandy.ascendency.serverplugin.game.rune.Rune;
+import com.gmail.andrewandy.ascendency.serverplugin.api.challenger.AbstractChallenger;
+import com.gmail.andrewandy.ascendency.serverplugin.api.challenger.Challenger;
+import com.gmail.andrewandy.ascendency.serverplugin.api.challenger.ChallengerUtils;
+import com.gmail.andrewandy.ascendency.serverplugin.api.ability.Ability;
+import com.gmail.andrewandy.ascendency.serverplugin.api.rune.AbstractRune;
+import com.gmail.andrewandy.ascendency.serverplugin.api.rune.PlayerSpecificRune;
+import com.gmail.andrewandy.ascendency.serverplugin.api.rune.Rune;
 import com.gmail.andrewandy.ascendency.serverplugin.game.util.LocationMark;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.AscendencyServerEvent;
 import com.gmail.andrewandy.ascendency.serverplugin.matchmaking.match.ManagedMatch;
@@ -22,10 +24,12 @@ import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.data.manipulator.mutable.entity.HealthData;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.potion.PotionEffect;
+import org.spongepowered.api.effect.potion.PotionEffectType;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.entity.ChangeEntityPotionEffectEvent;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.item.inventory.Inventory;
@@ -134,7 +138,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
         private static final ShadowsRetreat instance = new ShadowsRetreat();
         private UUID uuid = UUID.randomUUID();
         private Map<UUID, LocationMark> dataMap = new HashMap<>();
-        private BiFunction<UUID, LocationMark, Long[]> tickThreholdFunction;
+        private BiFunction<UUID, LocationMark, Long[]> tickThresholdFunction;
         private BiConsumer<Player, Integer> onMark;
 
         private ShadowsRetreat() {
@@ -144,8 +148,8 @@ public class Knavis extends AbstractChallenger implements Challenger {
             return instance;
         }
 
-        public void setTickThresholdSupplier(BiFunction<UUID, LocationMark, Long[]> tickThreholdFunction) {
-            this.tickThreholdFunction = tickThreholdFunction;
+        public void setTickThresholdSupplier(BiFunction<UUID, LocationMark, Long[]> tickThresholdFunction) {
+            this.tickThresholdFunction = tickThresholdFunction;
         }
 
         public void setOnMark(BiConsumer<Player, Integer> onMark) {
@@ -182,7 +186,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
         @Override
         public void tick() {
             dataMap.forEach((UUID player, LocationMark mark) -> {
-                Long[] ticks = tickThreholdFunction == null ? defaultTickThreshold : tickThreholdFunction.apply(player, mark);
+                Long[] ticks = tickThresholdFunction == null ? defaultTickThreshold : tickThresholdFunction.apply(player, mark);
                 //ticks is basically a long (tick threshold) for primary and secondary
                 assert ticks.length == 2;
                 if (mark.getPrimaryTick() >= ticks[0]) {
@@ -213,7 +217,7 @@ public class Knavis extends AbstractChallenger implements Challenger {
         //TODO add listeners
 
         @Listener
-        public void onItemUse(ChangeInventoryEvent.Held event) {
+        public void onHotbarChange(ChangeInventoryEvent.Held event) {
             Cause cause = event.getCause();
             Collection<Player> livings = cause.allOf(Player.class);
             if (livings.size() < 1) {
@@ -427,12 +431,18 @@ public class Knavis extends AbstractChallenger implements Challenger {
         }
 
         @Listener
-        public void onAllyUseBuff(AllyApplyEffectEvent event) {
-            Player target = event.getTarget();
-            if (!isEligible(target.getUniqueId())) {
+        public void onPotionApplied(ChangeEntityPotionEffectEvent.Gain event) {
+            //Check if the entity can have its this rune applied.
+            if (!isEligible(event.getTargetEntity().getUniqueId())) {
                 return;
             }
-            applyTo(target);
+            PotionEffectType effect = event.getPotionEffect().getType();
+
+            String name = effect.getName().toLowerCase();
+            if (name.contains("fury")  || effect == PotionEffectTypes.STRENGTH || effect == PotionEffectTypes.RESISTANCE) {
+                assert event.getTargetEntity() instanceof Player;
+                applyTo((Player) event.getTargetEntity());
+            }
         }
     }
 
