@@ -242,6 +242,7 @@ public class Astricion extends AbstractChallenger {
             PotionEffect[] effects = new PotionEffect[]{PotionEffect.builder()
                     //Strength scaling on current health
                     .potionType(PotionEffectTypes.STRENGTH)
+
                     .duration(999999).amplifier((int) Math.round((astricionHealth - 10) / 10D)).build()};
             for (PotionEffect effect : effects) {
                 data.addElement(effect);
