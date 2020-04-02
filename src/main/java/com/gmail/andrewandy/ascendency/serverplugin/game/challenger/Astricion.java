@@ -30,7 +30,7 @@ public class Astricion extends AbstractChallenger {
 
     private Astricion() {
         super("Astricion",
-                new Ability[]{Suppression.instance},
+                new Ability[]{Suppression.instance, DemonicCapacity.instance},
                 new PlayerSpecificRune[]{ReleasedLimit.instance, DiabolicResistance.instance, EmpoweringRage.instance},
                 Season1Challengers.getLoreOf("Astricion"));
     }
@@ -186,20 +186,26 @@ public class Astricion extends AbstractChallenger {
 
     private static class DemonicCapacity extends AbstractAbility {
         private static final DemonicCapacity instance = new DemonicCapacity();
+
         public static DemonicCapacity getInstance() {
             return instance;
         }
+
         private Collection<UUID> active = new HashSet<>();
+
         private DemonicCapacity() {
             super("Demonic Capacity", false);
         }
+
         public void activateAs(UUID player) {
             active.remove(player);
             active.add(player);
         }
+
+        @Listener
         public void onEntityDamage(DamageEntityEvent event) {
             Entity entity = event.getTargetEntity();
-            if((!active.contains(entity.getUniqueId())) || (!(entity instanceof Player))) {
+            if ((!active.contains(entity.getUniqueId())) || (!(entity instanceof Player))) {
                 return;
             } else {
                 int astricionHealth = (int) Math.round(((Player) entity).getHealthData().health().get());
@@ -212,31 +218,32 @@ public class Astricion extends AbstractChallenger {
                 PotionEffect[] effects = new PotionEffect[]{PotionEffect.builder()
                         //Strength scaling on current health
                         .potionType(PotionEffectTypes.STRENGTH)
-                        .duration(999999).amplifier((int) Math.round((astricionHealth-10)/10)).build()};
+                        .duration(999999).amplifier((int) Math.round((astricionHealth - 10) / 10D)).build()};
                 for (PotionEffect effect : effects) {
                     data.addElement(effect);
-                     }
                 }
+            }
         }
+
+        @Listener
         public void onPlayerRespawn(RespawnPlayerEvent event) {
             Player player = event.getTargetEntity();
-            if(!active.contains(player.getUniqueId())) {
+            if (!active.contains(player.getUniqueId())) {
                 return;
-            } else {
-                int astricionHealth = (int) Math.round(player.getHealthData().maxHealth().get());
-                Optional<PotionEffectData> optional = player.getOrCreate(PotionEffectData.class);
-                if (!optional.isPresent()) {
-                    throw new IllegalStateException("Potion effect data could not be gathered for " + player.getUniqueId().toString());
-                }
+            }
+            int astricionHealth = (int) Math.round(player.getHealthData().maxHealth().get());
+            Optional<PotionEffectData> optional = player.getOrCreate(PotionEffectData.class);
+            if (!optional.isPresent()) {
+                throw new IllegalStateException("Potion effect data could not be gathered for " + player.getUniqueId().toString());
+            }
 
-                PotionEffectData data = optional.get();
-                PotionEffect[] effects = new PotionEffect[]{PotionEffect.builder()
-                        //Strength scaling on current health
-                        .potionType(PotionEffectTypes.STRENGTH)
-                        .duration(999999).amplifier((int) Math.round((astricionHealth-10)/10)).build()};
-                for (PotionEffect effect : effects) {
-                    data.addElement(effect);
-                }
+            PotionEffectData data = optional.get();
+            PotionEffect[] effects = new PotionEffect[]{PotionEffect.builder()
+                    //Strength scaling on current health
+                    .potionType(PotionEffectTypes.STRENGTH)
+                    .duration(999999).amplifier((int) Math.round((astricionHealth - 10) / 10)).build()};
+            for (PotionEffect effect : effects) {
+                data.addElement(effect);
             }
         }
 
