@@ -5,17 +5,23 @@ import com.gmail.andrewandy.ascendency.lib.game.data.IChampionData;
 import com.gmail.andrewandy.ascendency.lib.game.data.game.ChampionDataImpl;
 import com.gmail.andrewandy.ascendency.serverplugin.game.ability.Ability;
 import com.gmail.andrewandy.ascendency.serverplugin.game.ability.AbstractAbility;
+import com.gmail.andrewandy.ascendency.serverplugin.game.rune.AbstractRune;
 import com.gmail.andrewandy.ascendency.serverplugin.game.rune.PlayerSpecificRune;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.effect.potion.PotionEffect;
+import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.UUID;
 
 public class Astricion extends AbstractChallenger {
@@ -25,12 +31,114 @@ public class Astricion extends AbstractChallenger {
     private Astricion() {
         super("Astricion",
                 new Ability[]{Suppression.instance},
-                new PlayerSpecificRune[0],
+                new PlayerSpecificRune[]{ReleasedLimit.instance, DiabolicResistance.instance, EmpoweringRage.instance},
                 Season1Challengers.getLoreOf("Astricion"));
     }
 
     public static Astricion getInstance() {
         return instance;
+    }
+
+    public static class ReleasedLimit extends AbstractRune {
+        private static final ReleasedLimit instance = new ReleasedLimit();
+
+        @Override
+        public void applyTo(Player player) {
+
+        }
+
+        @Override
+        public void clearFrom(Player player) {
+
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public void tick() {
+
+        }
+
+        @Override
+        public int getContentVersion() {
+            return 0;
+        }
+
+        @Override
+        public DataContainer toContainer() {
+            return null;
+        }
+    }
+
+    public static class DiabolicResistance extends AbstractRune {
+        public static final DiabolicResistance instance = new DiabolicResistance();
+
+        @Override
+        public void applyTo(Player player) {
+
+        }
+
+        @Override
+        public void clearFrom(Player player) {
+
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public void tick() {
+
+        }
+
+        @Override
+        public int getContentVersion() {
+            return 0;
+        }
+
+        @Override
+        public DataContainer toContainer() {
+            return null;
+        }
+    }
+
+    public static class EmpoweringRage extends AbstractRune {
+        public static final EmpoweringRage instance = new EmpoweringRage();
+
+        @Override
+        public void applyTo(Player player) {
+
+        }
+
+        @Override
+        public void clearFrom(Player player) {
+
+        }
+
+        @Override
+        public String getName() {
+            return null;
+        }
+
+        @Override
+        public void tick() {
+
+        }
+
+        @Override
+        public int getContentVersion() {
+            return 0;
+        }
+
+        @Override
+        public DataContainer toContainer() {
+            return null;
+        }
     }
 
     @Override
@@ -74,5 +182,63 @@ public class Astricion extends AbstractChallenger {
         public double calculateIncomingDamage(double incoming) {
             return incoming * 0.6D; //Reduced incoming damage.
         }
+    }
+
+    private static class DemonicCapacity extends AbstractAbility {
+        private static final DemonicCapacity instance = new DemonicCapacity();
+        public static DemonicCapacity getInstance() {
+            return instance;
+        }
+        private Collection<UUID> active = new HashSet<>();
+        private DemonicCapacity() {
+            super("Demonic Capacity", false);
+        }
+        public void activateAs(UUID player) {
+            active.remove(player);
+            active.add(player);
+        }
+        public void onEntityDamage(DamageEntityEvent event) {
+            Entity entity = event.getTargetEntity();
+            if((!active.contains(entity.getUniqueId())) || (!(entity instanceof Player))) {
+                return;
+            } else {
+                int astricionHealth = (int) Math.round(((Player) entity).getHealthData().health().get());
+                Optional<PotionEffectData> optional = entity.getOrCreate(PotionEffectData.class);
+                if (!optional.isPresent()) {
+                    throw new IllegalStateException("Potion effect data could not be gathered for " + entity.getUniqueId().toString());
+                }
+
+                PotionEffectData data = optional.get();
+                PotionEffect[] effects = new PotionEffect[]{PotionEffect.builder()
+                        //Strength scaling on current health
+                        .potionType(PotionEffectTypes.STRENGTH)
+                        .duration(999999).amplifier((int) Math.round((astricionHealth-10)/10)).build()};
+                for (PotionEffect effect : effects) {
+                    data.addElement(effect);
+                     }
+                }
+        }
+        public void onPlayerRespawn(RespawnPlayerEvent event) {
+            Player player = event.getTargetEntity();
+            if(!active.contains(player.getUniqueId())) {
+                return;
+            } else {
+                int astricionHealth = (int) Math.round(player.getHealthData().maxHealth().get());
+                Optional<PotionEffectData> optional = player.getOrCreate(PotionEffectData.class);
+                if (!optional.isPresent()) {
+                    throw new IllegalStateException("Potion effect data could not be gathered for " + player.getUniqueId().toString());
+                }
+
+                PotionEffectData data = optional.get();
+                PotionEffect[] effects = new PotionEffect[]{PotionEffect.builder()
+                        //Strength scaling on current health
+                        .potionType(PotionEffectTypes.STRENGTH)
+                        .duration(999999).amplifier((int) Math.round((astricionHealth-10)/10)).build()};
+                for (PotionEffect effect : effects) {
+                    data.addElement(effect);
+                }
+            }
+        }
+
     }
 }
