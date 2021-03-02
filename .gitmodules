@@ -1,6 +1,3 @@
 [submodule "AscendancyLib"]
 	path = AscendancyLib
 	url = https://github.com/md5sha256/AscendancyLib.git
-[submodule "master"]
-	path = master
-	url = https://github.com/md5sha256/AscendancyLib.git
