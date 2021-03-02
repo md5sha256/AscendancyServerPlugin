@@ -1,21 +1,37 @@
 buildscript {
     repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "https://files.minecraftforge.net/maven"
+        }
         maven {
             name = "sponge"
             url = "https://repo.spongepowered.org/maven"
         }
     }
+    dependencies {
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT"
+        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.2"
+    }
 }
 
 plugins {
+    id 'java'
+    id 'java-library'
     id("org.spongepowered.plugin") version "0.8.2"
 }
 
 apply plugin: "net.minecraftforge.gradle.forge"
+apply plugin: "com.github.johnrengelman.shadow"
 
-version = project.properties.modVersion
+
+group = project.properties.group
+version = project.properties.version
+archivesBaseName = project.properties.name
 
 repositories {
+    mavenCentral()
     maven {
         name = "aikar"
         url = "https://repo.aikar.co/content/groups/aikar/"
