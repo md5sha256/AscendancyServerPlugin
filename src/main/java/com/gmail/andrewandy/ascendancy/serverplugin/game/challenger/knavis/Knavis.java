@@ -8,6 +8,9 @@ import com.gmail.andrewandy.ascendancy.serverplugin.api.challenger.Challenger;
 import com.gmail.andrewandy.ascendancy.serverplugin.api.rune.PlayerSpecificRune;
 import com.gmail.andrewandy.ascendancy.serverplugin.game.challenger.ChallengerModule;
 import com.google.inject.Inject;
+import org.spongepowered.api.event.cause.EventContextKey;
+import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.plugin.PluginContainer;
 
 import java.io.File;
 import java.io.IOException;

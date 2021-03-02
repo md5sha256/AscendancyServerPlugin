@@ -15,6 +15,7 @@ import com.gmail.andrewandy.ascendancy.serverplugin.util.CustomEvents;
 import com.gmail.andrewandy.ascendancy.serverplugin.util.keybind.ActiveKeyPressedEvent;
 import com.gmail.andrewandy.ascendancy.serverplugin.util.keybind.KeyBindHandler;
 import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 import org.jetbrains.annotations.NotNull;
@@ -29,9 +30,12 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSources;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -44,11 +48,11 @@ import java.util.concurrent.TimeUnit;
 
 public class AbilityCircletOfTheAccused extends AbstractCooldownAbility {
 
-
     private final Map<UUID, CircletData> registeredMap = new HashMap<>();
     private final BellaComponentFactory factory;
     private final PlayerMatchManager matchManager;
     private final KeyBindHandler keyBindHandler;
+    private final PluginContainer plugin;
     private DamageEntityEvent lastDamageEvent;
     private RuneCoupDEclat rune;
 
@@ -57,12 +61,14 @@ public class AbilityCircletOfTheAccused extends AbstractCooldownAbility {
             @Assisted final Challenger bound,
             final BellaComponentFactory factory,
             final PlayerMatchManager matchManager,
-            final KeyBindHandler keyBindHandler
+            final KeyBindHandler keyBindHandler,
+            final PluginContainer plugin
     ) {
         super("Circlet Of The Accused", true, 5, TimeUnit.SECONDS, bound);
         this.factory = factory;
         this.matchManager = matchManager;
         this.keyBindHandler = keyBindHandler;
+        this.plugin = plugin;
     }
 
     public void init(@NotNull final RuneCoupDEclat boundRune) {
@@ -224,7 +230,7 @@ public class AbilityCircletOfTheAccused extends AbstractCooldownAbility {
                 .isKeyPressed(event.getPlayer())) { //If player was holding the key then skip.
             return;
         }
-        final ProcEvent procEvent = new ProcEvent(event.getPlayer(), event.getPlayer(), 2);
+        final ProcEvent procEvent = new ProcEvent(event.getPlayer(), event.getPlayer(), 2, plugin);
         if (procEvent.callEvent()) { //If not cancelled
             final Optional<ManagedMatch> match =
                     matchManager.getMatchOf(event.getPlayer().getUniqueId());
@@ -247,16 +253,18 @@ public class AbilityCircletOfTheAccused extends AbstractCooldownAbility {
         if (!event.willCauseDeath()) {
             return;
         }
+        final Location<World> location = entity.getLocation();
         registeredMap.values().stream()
-                .filter(circletData -> circletData.isWithinCircle(entity.getLocation()))
+                .filter(circletData -> circletData.isWithinCircle(location))
                 .findAny().ifPresent((circletData -> {
-
             event.setCancelled(true);
-            final Cause cause = Cause.builder().named("Source", circletData.getCaster()).build();
-            lastDamageEvent = SpongeEventFactory
-                    .createDamageEntityEvent(cause, event.getOriginalFunctions(), entity,
-                            event.getOriginalDamage()
-                    );
+            final Cause cause = Cause.builder().from(event.getCause()).insert(0, circletData).build(event.getContext());
+            lastDamageEvent = SpongeEventFactory.createDamageEntityEvent(
+                    cause,
+                    event.getOriginalFunctions(),
+                    entity,
+                    event.getOriginalDamage()
+            );
             Sponge.getEventManager().post(lastDamageEvent);
             entity.damage(
                     event.getFinalDamage(),
@@ -291,9 +299,11 @@ public class AbilityCircletOfTheAccused extends AbstractCooldownAbility {
 
         ProcEvent(
                 @NotNull final Player invoker, @NotNull final Player target,
-                final int circletRadius
+                final int circletRadius,
+                @NotNull final PluginContainer plugin
         ) {
-            this.cause = Cause.builder().named("Bella", invoker).build();
+            final EventContext context = EventContext.builder().add(PROC_PLAYER_KEY, invoker).build();
+            this.cause = Cause.of(context, plugin);
             this.invoker = invoker;
             this.target = target;
             if (circletRadius < 1) {
@@ -301,6 +311,11 @@ public class AbilityCircletOfTheAccused extends AbstractCooldownAbility {
             }
             this.circletRadius = circletRadius;
         }
+
+        public static final EventContextKey<Player> PROC_PLAYER_KEY = EventContextKey.builder(Player.class)
+                .id("ascendancyserverplugin:circlet_proc")
+                .name("circlet_proc_player")
+                .build();
 
         @Override
         public boolean isCancelled() {

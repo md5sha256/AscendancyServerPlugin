@@ -9,8 +9,11 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.manipulator.mutable.entity.HealthData;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 
 import java.util.HashMap;
@@ -34,9 +37,9 @@ public class AbilityLivingGift extends AbstractAbility {
 
     @Listener
     public void onDamage(final DamageEntityEvent event) {
-        final Optional<Player> optionalPlayer =
-                event.getCause().get(DamageEntityEvent.CREATOR, UUID.class)
-                        .flatMap(Sponge.getServer()::getPlayer);
+        final Optional<Player> optionalPlayer = event.getCause().getContext()
+                .get(EventContextKeys.CREATOR)
+                .flatMap(User::getPlayer);
         if (!optionalPlayer.isPresent()) {
             return;
         }
@@ -61,7 +64,8 @@ public class AbilityLivingGift extends AbstractAbility {
         private final Cause cause;
 
         public LivingGiftUseEvent(final Player player) {
-            this.cause = Cause.builder().named("Player", player).build();
+            final EventContext context = EventContext.builder().add(EventContextKeys.PLAYER, player).build();
+            this.cause = Cause.builder().build(context);
         }
 
         @Override

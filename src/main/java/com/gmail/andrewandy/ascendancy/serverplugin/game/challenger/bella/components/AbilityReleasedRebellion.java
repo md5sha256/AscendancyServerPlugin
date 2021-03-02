@@ -8,8 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 
 import java.util.HashMap;
@@ -30,9 +32,9 @@ public class AbilityReleasedRebellion extends AbstractTickableAbility {
     @Listener
     public void onPlayerAttack(final DamageEntityEvent event) {
         final Entity target = event.getTargetEntity();
-        final Optional<Player> optionalPlayer =
-                event.getCause().get(DamageEntityEvent.CREATOR, UUID.class)
-                        .flatMap(Sponge.getServer()::getPlayer);
+        final Optional<Player> optionalPlayer = event.getCause().getContext()
+                .get(EventContextKeys.CREATOR)
+                .flatMap(User::getPlayer);
         if (!optionalPlayer.isPresent()) {
             return;
         }
@@ -40,8 +42,7 @@ public class AbilityReleasedRebellion extends AbstractTickableAbility {
         if (!isRegistered(player.getUniqueId())) {
             return;
         }
-        tickMap
-                .compute(player.getUniqueId(), ((uuid, pair) -> new MutablePair<>(target.getUniqueId(), 0L)));
+        tickMap.compute(player.getUniqueId(), ((uuid, pair) -> new MutablePair<>(target.getUniqueId(), 0L)));
     }
 
     @Override
@@ -58,12 +59,11 @@ public class AbilityReleasedRebellion extends AbstractTickableAbility {
     @Listener(order = Order.LAST)
     public void onProc(final AbilityCircletOfTheAccused.ProcEvent event) { //Handles the proc event
         final Player invoker = event.getInvoker();
-        if (!tickMap.containsKey(invoker.getUniqueId())) {
+        final MutablePair<UUID, Long> pair = tickMap.get(invoker.getUniqueId());
+        if (pair == null) {
             return;
         }
-        final Optional<Player> optionalPlayer =
-                Sponge.getServer().getPlayer(tickMap.get(invoker.getUniqueId()).getKey());
-        optionalPlayer.ifPresent(event::setTarget);
+        Sponge.getServer().getPlayer(pair.getKey()).ifPresent(event::setTarget);
     }
 
 }

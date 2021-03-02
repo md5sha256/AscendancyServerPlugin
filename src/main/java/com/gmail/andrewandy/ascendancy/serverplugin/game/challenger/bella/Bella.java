@@ -15,6 +15,7 @@ import com.google.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.world.BlockChangeFlags;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -26,9 +27,6 @@ import java.util.Collection;
  * Represents the "Bella" Character in ascendancy.
  */
 public class Bella extends AbstractChallenger {
-
-    @Inject
-    private static AscendancyServerPlugin plugin;
 
     @Inject
     Bella(@NotNull final BellaComponentFactory componentFactory) {
@@ -81,8 +79,7 @@ public class Bella extends AbstractChallenger {
     ) {
         final Collection<Location<World>> rawCircle =
                 MathUtils.createCircleWithCentre(centre, radius);
-        final Cause cause = Cause.builder().named("Bella", plugin).build();
-        rawCircle.forEach((location -> location.setBlockType(BlockTypes.AIR, cause)));
+        rawCircle.forEach((location -> location.setBlockType(BlockTypes.AIR, BlockChangeFlags.NONE)));
         return rawCircle;
     }
 

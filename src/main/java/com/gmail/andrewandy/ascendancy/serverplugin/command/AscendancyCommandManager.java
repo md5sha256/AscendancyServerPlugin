@@ -9,7 +9,10 @@ import com.google.inject.Inject;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.world.extent.EntityUniverse;
 
 import java.util.Comparator;
@@ -17,9 +20,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public class AscendancyCommandManager extends BaseCommand {
-
-    @Inject
-    private AscendancyServerPlugin plugin;
 
     @Inject
     AscendancyCommandManager() {
@@ -58,7 +58,7 @@ public class AscendancyCommandManager extends BaseCommand {
             other = optionalPlayer.get();
         }
         final Inventory inventory = other.getInventory();
-        player.openInventory(inventory, Cause.source(plugin).build());
+        player.openInventory(inventory);
     }
 
 }

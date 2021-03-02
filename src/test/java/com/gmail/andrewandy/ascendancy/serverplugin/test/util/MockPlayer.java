@@ -1,6 +1,10 @@
 package com.gmail.andrewandy.ascendancy.serverplugin.test.util;
 
 import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3i;
+import org.spongepowered.api.advancement.Advancement;
+import org.spongepowered.api.advancement.AdvancementProgress;
+import org.spongepowered.api.advancement.AdvancementTree;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.DataContainer;
@@ -19,11 +23,13 @@ import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.sound.SoundCategory;
 import org.spongepowered.api.effect.sound.SoundType;
+import org.spongepowered.api.effect.sound.record.RecordType;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityArchetype;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.Transform;
+import org.spongepowered.api.entity.living.player.CooldownTracker;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabList;
 import org.spongepowered.api.entity.projectile.Projectile;
@@ -44,6 +50,7 @@ import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.SubjectCollection;
 import org.spongepowered.api.service.permission.SubjectData;
+import org.spongepowered.api.service.permission.SubjectReference;
 import org.spongepowered.api.text.BookView;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
@@ -56,6 +63,7 @@ import org.spongepowered.api.util.RelativePositions;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.WorldBorder;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -71,23 +79,22 @@ public class MockPlayer implements Player {
     private final UUID uniqueID = UUID.randomUUID();
 
     @Override
-    public UUID getUniqueId() {
-        return uniqueID;
-    }
-
-    @Override
     public Optional<Container> getOpenInventory() {
         return Optional.empty();
     }
 
     @Override
-    public Optional<Container> openInventory(final Inventory inventory, final Cause cause)
-            throws IllegalArgumentException {
+    public Optional<Container> openInventory(final Inventory inventory) throws IllegalArgumentException {
         return Optional.empty();
     }
 
     @Override
-    public boolean closeInventory(final Cause cause) throws IllegalArgumentException {
+    public Optional<Container> openInventory(final Inventory inventory, final Text displayName) {
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean closeInventory() throws IllegalArgumentException {
         return false;
     }
 
@@ -137,7 +144,7 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public void kick(Text reason) {
+    public void kick(final Text reason) {
 
     }
 
@@ -147,7 +154,7 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public void setScoreboard(Scoreboard scoreboard) {
+    public void setScoreboard(final Scoreboard scoreboard) {
 
     }
 
@@ -157,7 +164,7 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public void setSleepingIgnored(boolean sleepingIgnored) {
+    public void setSleepingIgnored(final boolean sleepingIgnored) {
 
     }
 
@@ -177,111 +184,130 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public void setSpectatorTarget(@Nullable Entity entity) {
+    public void setSpectatorTarget(@Nullable final Entity entity) {
 
     }
 
     @Override
-    public void spawnParticles(ParticleEffect particleEffect, Vector3d position) {
+    public Optional<WorldBorder> getWorldBorder() {
+        return Optional.empty();
+    }
+
+    @Override
+    public void setWorldBorder(@Nullable final WorldBorder border, final Cause cause) {
 
     }
 
     @Override
-    public void spawnParticles(ParticleEffect particleEffect, Vector3d position, int radius) {
+    public CooldownTracker getCooldownTracker() {
+        return null;
+    }
+
+    @Override
+    public AdvancementProgress getProgress(final Advancement advancement) {
+        return null;
+    }
+
+    @Override
+    public Collection<AdvancementTree> getUnlockedAdvancementTrees() {
+        return null;
+    }
+
+    @Override
+    public void spawnParticles(final ParticleEffect particleEffect, final Vector3d position) {
+
+    }
+
+    @Override
+    public void spawnParticles(final ParticleEffect particleEffect, final Vector3d position, final int radius) {
+
+    }
+
+    @Override
+    public void playSound(final SoundType sound, final SoundCategory category, final Vector3d position, final double volume) {
 
     }
 
     @Override
     public void playSound(
-            SoundType sound, SoundCategory category, Vector3d position,
-            double volume
+            final SoundType sound,
+            final SoundCategory category,
+            final Vector3d position,
+            final double volume,
+            final double pitch
     ) {
 
     }
 
     @Override
     public void playSound(
-            SoundType sound, SoundCategory category, Vector3d position, double volume,
-            double pitch
+            final SoundType sound,
+            final SoundCategory category,
+            final Vector3d position,
+            final double volume,
+            final double pitch,
+            final double minVolume
     ) {
 
     }
 
     @Override
-    public void playSound(
-            SoundType sound, SoundCategory category, Vector3d position, double volume,
-            double pitch, double minVolume
-    ) {
+    public void stopSounds() {
 
     }
 
     @Override
-    public void sendTitle(Title title) {
+    public void stopSounds(final SoundType sound) {
 
     }
 
     @Override
-    public void sendBookView(BookView bookView) {
+    public void stopSounds(final SoundCategory category) {
 
     }
 
     @Override
-    public void sendBlockChange(int x, int y, int z, BlockState state) {
+    public void stopSounds(final SoundType sound, final SoundCategory category) {
 
     }
 
     @Override
-    public void resetBlockChange(int x, int y, int z) {
+    public void playRecord(final Vector3i position, final RecordType recordType) {
 
     }
 
     @Override
-    public Optional<ItemStack> getHelmet() {
+    public void stopRecord(final Vector3i position) {
+
+    }
+
+    @Override
+    public void sendTitle(final Title title) {
+
+    }
+
+    @Override
+    public void sendBookView(final BookView bookView) {
+
+    }
+
+    @Override
+    public void sendBlockChange(final int x, final int y, final int z, final BlockState state) {
+
+    }
+
+    @Override
+    public void resetBlockChange(final int x, final int y, final int z) {
+
+    }
+
+    @Override
+    public Optional<ItemStack> getItemInHand(final HandType handType) {
         return Optional.empty();
     }
 
     @Override
-    public void setHelmet(@Nullable ItemStack helmet) {
-
-    }
-
-    @Override
-    public Optional<ItemStack> getChestplate() {
-        return Optional.empty();
-    }
-
-    @Override
-    public void setChestplate(@Nullable ItemStack chestplate) {
-
-    }
-
-    @Override
-    public Optional<ItemStack> getLeggings() {
-        return Optional.empty();
-    }
-
-    @Override
-    public void setLeggings(@Nullable ItemStack leggings) {
-
-    }
-
-    @Override
-    public Optional<ItemStack> getBoots() {
-        return Optional.empty();
-    }
-
-    @Override
-    public void setBoots(@Nullable ItemStack boots) {
-
-    }
-
-    @Override
-    public Optional<ItemStack> getItemInHand(HandType handType) {
-        return Optional.empty();
-    }
-
-    @Override
-    public void setItemInHand(HandType hand, @Nullable ItemStack itemInHand) {
+    public void setItemInHand(final HandType hand, @Nullable final ItemStack itemInHand) {
 
     }
 
@@ -291,7 +317,7 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public void setHeadRotation(Vector3d rotation) {
+    public void setHeadRotation(final Vector3d rotation) {
 
     }
 
@@ -311,7 +337,7 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public boolean setLocation(Location<World> location) {
+    public boolean setLocation(final Location<World> location) {
         return false;
     }
 
@@ -321,19 +347,20 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public void setRotation(Vector3d rotation) {
+    public void setRotation(final Vector3d rotation) {
 
     }
 
     @Override
-    public boolean setLocationAndRotation(Location<World> location, Vector3d rotation) {
+    public boolean setLocationAndRotation(final Location<World> location, final Vector3d rotation) {
         return false;
     }
 
     @Override
     public boolean setLocationAndRotation(
-            Location<World> location, Vector3d rotation,
-            EnumSet<RelativePositions> relativePositions
+            final Location<World> location,
+            final Vector3d rotation,
+            final EnumSet<RelativePositions> relativePositions
     ) {
         return false;
     }
@@ -344,7 +371,7 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public void setScale(Vector3d scale) {
+    public void setScale(final Vector3d scale) {
 
     }
 
@@ -354,12 +381,12 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public boolean setTransform(Transform<World> transform) {
+    public boolean setTransform(final Transform<World> transform) {
         return false;
     }
 
     @Override
-    public boolean transferToWorld(World world, Vector3d position) {
+    public boolean transferToWorld(final World world, final Vector3d position) {
         return false;
     }
 
@@ -374,18 +401,23 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public DataTransactionResult addPassenger(Entity entity) {
-        return null;
+    public boolean hasPassenger(final Entity entity) {
+        return false;
     }
 
     @Override
-    public DataTransactionResult removePassenger(Entity entity) {
-        return null;
+    public boolean addPassenger(final Entity entity) {
+        return false;
     }
 
     @Override
-    public DataTransactionResult clearPassengers() {
-        return null;
+    public void removePassenger(final Entity entity) {
+
+    }
+
+    @Override
+    public void clearPassengers() {
+
     }
 
     @Override
@@ -394,8 +426,8 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public DataTransactionResult setVehicle(@Nullable Entity entity) {
-        return null;
+    public boolean setVehicle(@Nullable final Entity entity) {
+        return false;
     }
 
     @Override
@@ -424,7 +456,7 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public boolean damage(double damage, DamageSource damageSource, Cause cause) {
+    public boolean damage(final double damage, final DamageSource damageSource) {
         return false;
     }
 
@@ -434,17 +466,17 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public void setCreator(@Nullable UUID uuid) {
-
-    }
-
-    @Override
     public Optional<UUID> getNotifier() {
         return Optional.empty();
     }
 
     @Override
-    public void setNotifier(@Nullable UUID uuid) {
+    public void setCreator(@Nullable final UUID uuid) {
+
+    }
+
+    @Override
+    public void setNotifier(@Nullable final UUID uuid) {
 
     }
 
@@ -469,12 +501,27 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public boolean validateRawData(DataView container) {
+    public Vector3d getPosition() {
+        return null;
+    }
+
+    @Override
+    public Optional<UUID> getWorldUniqueId() {
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean setLocation(final Vector3d position, final UUID world) {
         return false;
     }
 
     @Override
-    public void setRawData(DataView container) throws InvalidDataException {
+    public boolean validateRawData(final DataView container) {
+        return false;
+    }
+
+    @Override
+    public void setRawData(final DataView container) throws InvalidDataException {
 
     }
 
@@ -489,7 +536,7 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public <T extends Property<?, ?>> Optional<T> getProperty(Class<T> propertyClass) {
+    public <T extends Property<?, ?>> Optional<T> getProperty(final Class<T> propertyClass) {
         return Optional.empty();
     }
 
@@ -499,63 +546,47 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public <T extends DataManipulator<?, ?>> Optional<T> get(Class<T> containerClass) {
+    public <T extends DataManipulator<?, ?>> Optional<T> get(final Class<T> containerClass) {
         return Optional.empty();
     }
 
     @Override
-    public <T extends DataManipulator<?, ?>> Optional<T> getOrCreate(Class<T> containerClass) {
+    public <T extends DataManipulator<?, ?>> Optional<T> getOrCreate(final Class<T> containerClass) {
         return Optional.empty();
     }
 
     @Override
-    public boolean supports(Class<? extends DataManipulator<?, ?>> holderClass) {
+    public boolean supports(final Class<? extends DataManipulator<?, ?>> holderClass) {
         return false;
     }
 
     @Override
-    public <E> DataTransactionResult offer(Key<? extends BaseValue<E>> key, E value) {
+    public <E> DataTransactionResult offer(final Key<? extends BaseValue<E>> key, final E value) {
         return null;
     }
 
     @Override
-    public <E> DataTransactionResult offer(Key<? extends BaseValue<E>> key, E value, Cause cause) {
+    public DataTransactionResult offer(final DataManipulator<?, ?> valueContainer, final MergeFunction function) {
         return null;
     }
 
     @Override
-    public DataTransactionResult offer(
-            DataManipulator<?, ?> valueContainer,
-            MergeFunction function
-    ) {
+    public DataTransactionResult remove(final Class<? extends DataManipulator<?, ?>> containerClass) {
         return null;
     }
 
     @Override
-    public DataTransactionResult offer(
-            DataManipulator<?, ?> valueContainer, MergeFunction function,
-            Cause cause
-    ) {
+    public DataTransactionResult remove(final Key<?> key) {
         return null;
     }
 
     @Override
-    public DataTransactionResult remove(Class<? extends DataManipulator<?, ?>> containerClass) {
+    public DataTransactionResult undo(final DataTransactionResult result) {
         return null;
     }
 
     @Override
-    public DataTransactionResult remove(Key<?> key) {
-        return null;
-    }
-
-    @Override
-    public DataTransactionResult undo(DataTransactionResult result) {
-        return null;
-    }
-
-    @Override
-    public DataTransactionResult copyFrom(DataHolder that, MergeFunction function) {
+    public DataTransactionResult copyFrom(final DataHolder that, final MergeFunction function) {
         return null;
     }
 
@@ -565,17 +596,17 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public <E> Optional<E> get(Key<? extends BaseValue<E>> key) {
+    public <E> Optional<E> get(final Key<? extends BaseValue<E>> key) {
         return Optional.empty();
     }
 
     @Override
-    public <E, V extends BaseValue<E>> Optional<V> getValue(Key<V> key) {
+    public <E, V extends BaseValue<E>> Optional<V> getValue(final Key<V> key) {
         return Optional.empty();
     }
 
     @Override
-    public boolean supports(Key<?> key) {
+    public boolean supports(final Key<?> key) {
         return false;
     }
 
@@ -595,22 +626,22 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public boolean canEquip(EquipmentType type) {
+    public boolean canEquip(final EquipmentType type) {
         return false;
     }
 
     @Override
-    public boolean canEquip(EquipmentType type, @Nullable ItemStack equipment) {
+    public boolean canEquip(final EquipmentType type, @Nullable final ItemStack equipment) {
         return false;
     }
 
     @Override
-    public Optional<ItemStack> getEquipped(EquipmentType type) {
+    public Optional<ItemStack> getEquipped(final EquipmentType type) {
         return Optional.empty();
     }
 
     @Override
-    public boolean equip(EquipmentType type, @Nullable ItemStack equipment) {
+    public boolean equip(final EquipmentType type, @Nullable final ItemStack equipment) {
         return false;
     }
 
@@ -620,15 +651,12 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public <T extends Projectile> Optional<T> launchProjectile(Class<T> projectileClass) {
+    public <T extends Projectile> Optional<T> launchProjectile(final Class<T> projectileClass) {
         return Optional.empty();
     }
 
     @Override
-    public <T extends Projectile> Optional<T> launchProjectile(
-            Class<T> projectileClass,
-            Vector3d velocity
-    ) {
+    public <T extends Projectile> Optional<T> launchProjectile(final Class<T> projectileClass, final Vector3d velocity) {
         return Optional.empty();
     }
 
@@ -653,6 +681,16 @@ public class MockPlayer implements Player {
     }
 
     @Override
+    public SubjectReference asSubjectReference() {
+        return null;
+    }
+
+    @Override
+    public boolean isSubjectDataPersisted() {
+        return false;
+    }
+
+    @Override
     public SubjectData getSubjectData() {
         return null;
     }
@@ -663,22 +701,22 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public Tristate getPermissionValue(Set<Context> contexts, String permission) {
+    public Tristate getPermissionValue(final Set<Context> contexts, final String permission) {
         return null;
     }
 
     @Override
-    public boolean isChildOf(Set<Context> contexts, Subject parent) {
+    public boolean isChildOf(final Set<Context> contexts, final SubjectReference parent) {
         return false;
     }
 
     @Override
-    public List<Subject> getParents(Set<Context> contexts) {
+    public List<SubjectReference> getParents(final Set<Context> contexts) {
         return null;
     }
 
     @Override
-    public Optional<String> getOption(Set<Context> contexts, String key) {
+    public Optional<String> getOption(final Set<Context> contexts, final String key) {
         return Optional.empty();
     }
 
@@ -693,12 +731,12 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public void sendMessage(ChatType type, Text message) {
+    public void sendMessage(final ChatType type, final Text message) {
 
     }
 
     @Override
-    public void sendMessage(Text message) {
+    public void sendMessage(final Text message) {
 
     }
 
@@ -708,12 +746,17 @@ public class MockPlayer implements Player {
     }
 
     @Override
-    public void setMessageChannel(MessageChannel channel) {
+    public void setMessageChannel(final MessageChannel channel) {
 
     }
 
     @Override
     public Translation getTranslation() {
+        return null;
+    }
+
+    @Override
+    public UUID getUniqueId() {
         return null;
     }
 

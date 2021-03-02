@@ -12,6 +12,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.cause.EventContextKeys;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class RuneChosenOTEarth extends AbstractRune {
      */
     @Listener
     public void onGiftUse(final AbilityLivingGift.LivingGiftUseEvent event) {
-        final Optional<Player> optionalPlayer = (event.getCause().get("Player", Player.class));
+        final Optional<Player> optionalPlayer = event.getCause().getContext().get(EventContextKeys.PLAYER);
         assert optionalPlayer.isPresent();
         if (!tickHistory.containsKey(optionalPlayer.get().getUniqueId())) {
             return;

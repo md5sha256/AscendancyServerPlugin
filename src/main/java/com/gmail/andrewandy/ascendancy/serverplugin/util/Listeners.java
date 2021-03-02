@@ -19,8 +19,7 @@ import java.util.Optional;
 
 public class Listeners {
 
-    private static final IllegalStateException nullFallDamage =
-            new IllegalStateException("Unable to get fall damage data!");
+    private static final IllegalStateException nullFallDamage = new IllegalStateException("Unable to get fall damage data!");
 
 
     /**
@@ -35,8 +34,7 @@ public class Listeners {
         if (!(player instanceof Player)) {
             return;
         }
-        final FallDistanceData data =
-                player.get(FallDistanceData.class).orElseThrow(() -> nullFallDamage);
+        final FallDistanceData data = player.get(FallDistanceData.class).orElseThrow(() -> nullFallDamage);
         data.fallDistance().set(0f);
         player.offer(data);
     }
@@ -46,8 +44,7 @@ public class Listeners {
      */
     @Listener(order = Order.EARLY)
     public void onEmptyHit(final DamageEntityEvent event) {
-        final Optional<Player> source =
-                event.getCause().get(DamageEntityEvent.SOURCE, Player.class);
+        final Optional<Player> source = event.getCause().first(Player.class);
         if (!source.isPresent()) {
             return;
         }
@@ -79,10 +76,12 @@ public class Listeners {
             return;
         }
         final EntityPlayer player = (EntityPlayer) entity;
-        player.hurtTime = 0; //Reset the player's damage cooldown to 0.
+        //Reset the player's damage cooldown to 0.
+        player.hurtTime = 0;
         final KnockbackData knockbackData = entity.getOrCreate(KnockbackData.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get knockback data!"));
-        knockbackData.knockbackStrength().set(0); //Sett the knocback strength to 0.
+        //Set the knockback strength to 0.
+        knockbackData.knockbackStrength().set(0);
         entity.offer(knockbackData);
     }
 

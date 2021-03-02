@@ -6,6 +6,9 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.scoreboard.critieria.Criteria;
 import org.spongepowered.api.scoreboard.objective.Objective;
 import org.spongepowered.api.text.Text;
@@ -67,6 +70,11 @@ public class ActiveKeyHandler implements KeyBindHandler {
         objective.getOrCreateScore(Text.of(scoreName)).setScore(0);
         pressed.remove(player.getUniqueId());
         new ActiveKeyReleasedEvent(player).callEvent();
+    }
+
+    @Listener(order = Order.LAST)
+    public void onPlayerDisconnect(final ClientConnectionEvent.Disconnect event) {
+        onKeyRelease(event.getTargetEntity());
     }
 
     @Override

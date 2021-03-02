@@ -4,6 +4,8 @@ import com.gmail.andrewandy.ascendancy.serverplugin.matchmaking.Team;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKeys;
 
 public abstract class GameEvent extends AscendancyServerEvent {
 
@@ -15,7 +17,7 @@ public abstract class GameEvent extends AscendancyServerEvent {
     public GameEvent(final Player player, final Team team) {
         this.player = player;
         this.playerTeam = team;
-        this.cause = Cause.builder().named("Player", player).build();
+        this.cause = Cause.builder().build(EventContext.builder().add(EventContextKeys.PLAYER, player).build());
     }
 
     public Player getPlayer() {

@@ -1,7 +1,9 @@
 package com.gmail.andrewandy.ascendancy.serverplugin.matchmaking.match.event;
 
 import com.gmail.andrewandy.ascendancy.serverplugin.matchmaking.match.Match;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.cause.Cause;
 
 public class MatchStartEvent extends MatchEvent implements Cancellable {
 
@@ -11,8 +13,8 @@ public class MatchStartEvent extends MatchEvent implements Cancellable {
         super(match);
     }
 
-    public MatchStartEvent(final Match match, final String name, final Object cause) {
-        super(match, name, cause);
+    public MatchStartEvent(final @NotNull Match match, final @NotNull Cause cause) {
+        super(match, cause);
     }
 
     @Override

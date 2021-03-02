@@ -11,7 +11,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT"
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT"
         classpath "com.github.jengelman.gradle.plugins:shadow:4.0.2"
     }
 }
@@ -41,9 +41,9 @@ repositories {
 dependencies {
 
     //SpongeAPI
-    provided("org.spongepowered:spongeapi:5.1.0") {
+    provided("org.spongepowered:spongeapi:7.4.0-SNAPSHOT") {
         // Exclude sponge 5"s configurate, we shade in configurate 4.0.0
-        exclude group: "ninja.leaping.configurate"
+        exclude group: "org.spongerpowered.configurate"
     }
 
     // Jetbrains Annotations
@@ -53,7 +53,7 @@ dependencies {
     compile project(":AscendancyLib")
 
     // Guice assisted-inject
-    compile("com.google.inject.extensions:guice-assistedinject:4.0") {
+    compile("com.google.inject.extensions:guice-assistedinject:4.1.0") {
         exclude group: "com.google.inject", module: "guice"
     }
 

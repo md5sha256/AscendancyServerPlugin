@@ -2,7 +2,10 @@ package com.gmail.andrewandy.ascendancy.serverplugin.matchmaking.match.event;
 
 import com.gmail.andrewandy.ascendancy.serverplugin.api.event.AscendancyServerEvent;
 import com.gmail.andrewandy.ascendancy.serverplugin.matchmaking.match.Match;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKey;
 
 import java.util.Objects;
 
@@ -11,25 +14,30 @@ import java.util.Objects;
  */
 public abstract class MatchEvent extends AscendancyServerEvent {
 
+    public static final EventContextKey<Match> MATCH_KEY = EventContextKey.builder(Match.class)
+            .id("ascendancyserverplugin:matchmaking")
+            .name("SOURCE")
+            .build();
+
     private final Match match;
     private Cause cause;
 
-    public MatchEvent(final Match match) {
+    public MatchEvent(@NotNull final Match match) {
         this.match = Objects.requireNonNull(match);
-        cause = Cause.builder().named("match", match).build();
+        this.cause = Cause.builder().build(EventContext.builder().add(MATCH_KEY, match).build());
     }
 
-    public MatchEvent(final Match match, final String name, final Object cause) {
+    public MatchEvent(@NotNull final Match match, @NotNull final Cause cause) {
         this(match);
-        this.cause = Cause.builder().named(name, cause).build();
+        this.cause = cause;
     }
 
-    public Match getMatch() {
+    public @NotNull Match getMatch() {
         return match;
     }
 
     @Override
-    public Cause getCause() {
+    public @NotNull Cause getCause() {
         return cause;
     }
 

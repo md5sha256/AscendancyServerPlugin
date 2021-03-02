@@ -15,11 +15,6 @@ public interface KeyBindHandler {
 
     void onKeyRelease(@NotNull Player player);
 
-    @Listener(order = Order.LAST)
-    default void onPlayerDisconnect(final ClientConnectionEvent.Disconnect event) {
-        onKeyRelease(event.getTargetEntity());
-    }
-
     boolean isKeyPressed(@NotNull Player player);
 
 }

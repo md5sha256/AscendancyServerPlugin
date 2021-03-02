@@ -6,6 +6,7 @@ import com.google.inject.assistedinject.AssistedInject;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.world.BlockChangeFlags;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -90,8 +91,7 @@ public class CircletData {
     public void reset() {
         this.tickCount = 0L;
         this.ringCenter = null;
-        final Cause cause = Cause.builder().named("Bella", plugin).build();
-        ringBlocks.forEach(location -> location.setBlockType(BlockTypes.AIR, cause));
+        ringBlocks.forEach(location -> location.setBlockType(BlockTypes.AIR, BlockChangeFlags.NONE));
         this.ringBlocks = null;
     }
 

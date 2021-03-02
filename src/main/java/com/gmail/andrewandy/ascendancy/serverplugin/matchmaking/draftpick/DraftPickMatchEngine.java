@@ -12,8 +12,10 @@ import com.google.inject.name.Named;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.scoreboard.Scoreboard;
 import org.spongepowered.api.scoreboard.critieria.Criteria;
@@ -221,8 +223,7 @@ public class DraftPickMatchEngine implements GameEngine {
             return;
         }
         final Optional<Player> optionalPlayer =
-                event.getCause().get(DamageEntityEvent.CREATOR, UUID.class)
-                        .flatMap(Sponge.getServer()::getPlayer);
+                event.getCause().getContext().get(EventContextKeys.CREATOR).flatMap(User::getPlayer);
         if (!optionalPlayer.isPresent()) {
             return;
         }

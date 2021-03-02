@@ -13,8 +13,10 @@ import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 
 import java.util.Collection;
@@ -69,9 +71,9 @@ public class AbilityHauntingFury extends AbstractCooldownAbility {
 
     @Listener(order = Order.DEFAULT)
     public void onHit(final DamageEntityEvent event) {
-        final Optional<Player> optionalPlayer =
-                event.getCause().get(DamageEntityEvent.CREATOR, UUID.class)
-                        .flatMap(Sponge.getServer()::getPlayer);
+        final Optional<Player> optionalPlayer = event.getCause().getContext()
+                .get(EventContextKeys.CREATOR)
+                .flatMap(User::getPlayer);
         if (!optionalPlayer.isPresent()) {
             return;
         }

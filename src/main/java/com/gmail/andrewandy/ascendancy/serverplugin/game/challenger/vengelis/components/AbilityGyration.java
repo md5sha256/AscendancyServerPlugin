@@ -15,8 +15,10 @@ import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -59,8 +61,9 @@ public class AbilityGyration extends AbstractCooldownAbility {
 
     @Listener(order = Order.LAST)
     public void onAttack(final DamageEntityEvent event) {
-        final Optional<Player> source = event.getCause().get(DamageEntityEvent.CREATOR, UUID.class)
-                .flatMap(Sponge.getServer()::getPlayer);
+        final Optional<Player> source = event.getCause().getContext()
+                .get(EventContextKeys.CREATOR)
+                .flatMap(User::getPlayer);
         if (!source.isPresent()) {
             return;
         }

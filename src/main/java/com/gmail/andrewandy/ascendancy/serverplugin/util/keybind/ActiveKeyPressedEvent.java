@@ -5,6 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKeys;
 
 import java.util.Objects;
 
@@ -18,7 +20,7 @@ public class ActiveKeyPressedEvent extends AscendancyServerEvent implements Canc
 
     ActiveKeyPressedEvent(@NotNull final Player player) {
         this.player = Objects.requireNonNull(player);
-        this.cause = Cause.builder().named("Player", player).build();
+        this.cause = Cause.builder().build(EventContext.builder().add(EventContextKeys.PLAYER, player).build());
     }
 
     @NotNull

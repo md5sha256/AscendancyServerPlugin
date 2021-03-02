@@ -39,7 +39,6 @@ public final class ChallengerModule extends AbstractModule {
 
         bind(Astricion.class).asEagerSingleton();
         bind(Bella.class).asEagerSingleton();
-        requestStaticInjection(Bella.class);
         bind(Breezy.class).asEagerSingleton();
         bind(Knavis.class).asEagerSingleton();
         bind(Nikolas.class).asEagerSingleton();
