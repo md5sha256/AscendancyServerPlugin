@@ -36,7 +36,7 @@ import java.util.logging.Level;
 
 @Plugin(id = "ascendancyserverplugin",
         name = "AscendancyServerPlugin",
-        version = "0.1-ALPHA",
+        version = "0.1.0-alpha",
         description = "Ascendancy Server Plugin",
         authors = {"andrewandy", "resonabit"})
 
