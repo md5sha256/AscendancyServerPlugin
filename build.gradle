@@ -19,7 +19,7 @@ buildscript {
 plugins {
     id 'java'
     id 'java-library'
-    id("org.spongepowered.plugin") version "0.8.2"
+    id("org.spongepowered.gradle.plugin") version "0.11.0-SNAPSHOT"
 }
 
 apply plugin: "net.minecraftforge.gradle.forge"
@@ -40,32 +40,37 @@ repositories {
 
 dependencies {
 
+
     //SpongeAPI
-    provided("org.spongepowered:spongeapi:7.4.0-SNAPSHOT") {
-        // Exclude sponge 5"s configurate, we shade in configurate 4.0.0
-        exclude group: "org.spongerpowered.configurate"
+    implementation("org.spongepowered:spongeapi:7.4.0-SNAPSHOT") {
+        configurations {
+            runtime.exclude(module: "spongeapi")
+            // Exclude sponge's configurate, we shade in configurate 4.0.0
+            exclude group: "org.spongepowered.configurate"
+        }
+        annotationProcessor("org.spongepowered:spongeapi:7.4.0-SNAPSHOT")
+        testAnnotationProcessor("org.spongepowered:spongeapi:7.4.0-SNAPSHOT")
     }
 
     // Jetbrains Annotations
     compileOnly("org.jetbrains:annotations:19.0.0")
 
     //AscendancyLib
-    compile project(":AscendancyLib")
+    implementation project(":AscendancyLib")
 
     // Guice assisted-inject
-    compile("com.google.inject.extensions:guice-assistedinject:4.1.0") {
+    implementation("com.google.inject.extensions:guice-assistedinject:4.1.0") {
         exclude group: "com.google.inject", module: "guice"
     }
 
     // ACF
-    compile("co.aikar:acf-sponge:0.5.0-SNAPSHOT")
+    implementation("co.aikar:acf-sponge:0.5.0-SNAPSHOT")
 
     // TaskChain
-    compile("co.aikar:taskchain-sponge:3.7.2")
+    implementation("co.aikar:taskchain-sponge:3.7.2")
 
     // Configurate 4.0.0
     implementation("org.spongepowered:configurate-yaml:4.0.0")
-
 }
 
 minecraft {
@@ -95,7 +100,7 @@ shadowJar {
     relocate("co.aikar.taskchain", "com.gmail.andrewandy.ascendancy.serverplugin.lib.taskchain")
     relocate("co.aikar.commands", "com.gmail.andrewandy.ascendancy.serverplugin.lib.acf")
     relocate("co.aikar.locales", "com.gmail.andrewandy.ascendancy.serverplugin.lib.locales")
-    relocate("io.leagen.geantyref", "com.gmail.andrewandy.ascendancy.serverplugin.lib.geantyref")
+    relocate("io.leangen.geantyref", "com.gmail.andrewandy.ascendancy.serverplugin.lib.geantyref")
     relocate("com.google.inject", "com.gmail.andrewandy.ascendancy.serverplugin.lib.inject")
     relocate("org.checkerframework", "com.gmail.andrewandy.ascendancy.serverplugin.lib.checkerframework")
     relocate("org.yaml.snakeyaml", "com.gmail.andrewandy.ascendancy.serverplugin.lib.snakeyaml")
